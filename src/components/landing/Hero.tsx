@@ -43,13 +43,17 @@ export const Hero = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-fade-in-up"
             style={{ animationDelay: "0.3s" }}
           >
-            <Button variant="hero" size="xl" className="group">
-              Start Investing
-              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            <Button variant="hero" size="xl" className="group" asChild>
+              <a href="/signup">
+                Start Investing
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </a>
             </Button>
-            <Button variant="glass" size="xl" className="group">
-              <Play className="h-4 w-4" />
-              View Markets
+            <Button variant="glass" size="xl" className="group" asChild>
+              <a href="/markets">
+                <Play className="h-4 w-4" />
+                View Markets
+              </a>
             </Button>
           </div>
 
