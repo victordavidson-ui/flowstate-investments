@@ -21,12 +21,14 @@ export const CtaSection = () => {
               Join 2.4M+ investors building wealth on NETFLOW. Get started in under 60 seconds.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button variant="hero" size="xl" className="group">
-                Create your account
-                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              <Button variant="hero" size="xl" className="group" asChild>
+                <a href="/signup">
+                  Create your account
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </a>
               </Button>
-              <Button variant="glass" size="xl">
-                Talk to sales
+              <Button variant="glass" size="xl" asChild>
+                <a href="/dashboard">View demo</a>
               </Button>
             </div>
             <p className="text-xs text-muted-foreground font-mono mt-8">

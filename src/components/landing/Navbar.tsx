@@ -46,11 +46,11 @@ export const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="hidden md:inline-flex text-muted-foreground hover:text-foreground">
-              Sign in
+            <Button variant="ghost" size="sm" className="hidden md:inline-flex text-muted-foreground hover:text-foreground" asChild>
+              <a href="/login">Sign in</a>
             </Button>
-            <Button variant="hero" size="sm">
-              Get started
+            <Button variant="hero" size="sm" asChild>
+              <a href="/signup">Get started</a>
             </Button>
             <button className="md:hidden p-2 text-foreground">
               <Menu className="h-5 w-5" />
