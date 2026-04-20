@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -10,15 +11,20 @@ import {
   Zap,
   ShieldCheck,
   LogOut,
+  Users,
+  Repeat,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NotificationsPanel } from "./NotificationsPanel";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/markets", label: "Markets", icon: LineChart },
   { to: "/trade", label: "Trade", icon: CandlestickChart },
   { to: "/wallet", label: "Wallet", icon: Wallet },
+  { to: "/copy", label: "Copy", icon: Users },
+  { to: "/earn", label: "Earn", icon: Repeat },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
@@ -91,6 +97,7 @@ const MobileNavItem = ({
 
 export const AppLayout = () => {
   const location = useLocation();
+  const [notifOpen, setNotifOpen] = useState(false);
   const pageTitle =
     navItems.find((n) => location.pathname.startsWith(n.to))?.label ?? "Dashboard";
 
