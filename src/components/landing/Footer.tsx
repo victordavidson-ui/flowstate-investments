@@ -1,21 +1,46 @@
 import { Zap } from "lucide-react";
+import { Link } from "react-router-dom";
 
-const groups = [
+const groups: { title: string; links: { label: string; to: string }[] }[] = [
   {
     title: "Product",
-    links: ["Markets", "Crypto", "Stocks", "Auto-invest", "Copy trading"],
+    links: [
+      { label: "Markets", to: "/markets-overview" },
+      { label: "Crypto", to: "/crypto" },
+      { label: "Stocks", to: "/stocks" },
+      { label: "Auto-invest", to: "/auto-invest" },
+      { label: "Copy trading", to: "/copy-trading" },
+    ],
   },
   {
     title: "Company",
-    links: ["About", "Careers", "Press", "Blog", "Security"],
+    links: [
+      { label: "About", to: "/about" },
+      { label: "Careers", to: "/careers" },
+      { label: "Press", to: "/press" },
+      { label: "Blog", to: "/blog" },
+      { label: "Security", to: "/security" },
+    ],
   },
   {
     title: "Resources",
-    links: ["Help center", "API docs", "Status", "Fees", "Tax center"],
+    links: [
+      { label: "Help center", to: "/help" },
+      { label: "API docs", to: "/api" },
+      { label: "Status", to: "/status" },
+      { label: "Fees", to: "/fees" },
+      { label: "Tax center", to: "/tax" },
+    ],
   },
   {
     title: "Legal",
-    links: ["Terms", "Privacy", "Disclosures", "Licenses", "Cookies"],
+    links: [
+      { label: "Terms", to: "/terms" },
+      { label: "Privacy", to: "/privacy" },
+      { label: "Disclosures", to: "/disclosures" },
+      { label: "Licenses", to: "/licenses" },
+      { label: "Cookies", to: "/cookies" },
+    ],
   },
 ];
 
@@ -44,13 +69,13 @@ export const Footer = () => {
               </h5>
               <ul className="space-y-3">
                 {g.links.map((l) => (
-                  <li key={l}>
-                    <a
-                      href="#"
+                  <li key={l.label}>
+                    <Link
+                      to={l.to}
                       className="text-sm text-foreground/80 hover:text-primary transition-colors"
                     >
-                      {l}
-                    </a>
+                      {l.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
