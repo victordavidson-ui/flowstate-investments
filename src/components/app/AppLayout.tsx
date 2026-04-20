@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -10,15 +11,20 @@ import {
   Zap,
   ShieldCheck,
   LogOut,
+  Users,
+  Repeat,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NotificationsPanel } from "./NotificationsPanel";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/markets", label: "Markets", icon: LineChart },
   { to: "/trade", label: "Trade", icon: CandlestickChart },
   { to: "/wallet", label: "Wallet", icon: Wallet },
+  { to: "/copy", label: "Copy", icon: Users },
+  { to: "/earn", label: "Earn", icon: Repeat },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
@@ -91,6 +97,7 @@ const MobileNavItem = ({
 
 export const AppLayout = () => {
   const location = useLocation();
+  const [notifOpen, setNotifOpen] = useState(false);
   const pageTitle =
     navItems.find((n) => location.pathname.startsWith(n.to))?.label ?? "Dashboard";
 
@@ -159,7 +166,12 @@ export const AppLayout = () => {
                 />
               </div>
             </div>
-            <button className="relative h-10 w-10 rounded-xl glass hover:border-primary/40 transition-colors flex items-center justify-center">
+            <button
+              type="button"
+              aria-label="Open notifications"
+              onClick={() => setNotifOpen(true)}
+              className="relative h-10 w-10 rounded-xl glass hover:border-primary/40 transition-colors flex items-center justify-center"
+            >
               <Bell className="h-4 w-4" />
               <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary shadow-glow animate-blink" />
             </button>
@@ -176,12 +188,14 @@ export const AppLayout = () => {
 
       {/* Mobile bottom nav */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 glass-strong border-t border-border/40">
-        <div className="flex items-stretch pb-[env(safe-area-inset-bottom)]">
+        <div className="flex items-stretch pb-[env(safe-area-inset-bottom)] overflow-x-auto">
           {navItems.map((n) => (
             <MobileNavItem key={n.to} to={n.to} label={n.label} Icon={n.icon} />
           ))}
         </div>
       </nav>
+
+      <NotificationsPanel open={notifOpen} onOpenChange={setNotifOpen} />
     </div>
   );
 };
