@@ -6,8 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarClock, Pause, Play, Plus, Repeat, Sparkles, Trash2 } from "lucide-react";
+import { CalendarClock, Pause, Play, Plus, Repeat, Sparkles, Trash2, Edit2, TrendingUp, ShieldAlert, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { Progress } from "@/components/ui/progress";
 
 type Cadence = "Daily" | "Weekly" | "Monthly";
 type Plan = {
@@ -18,14 +19,17 @@ type Plan = {
   next: string;
   active: boolean;
   invested: number;
+  target: number;
+  projectedApy: number;
+  risk: "Low" | "Medium" | "High";
 };
 
 const ASSETS = ["BTC", "ETH", "SOL", "AAPL", "TSLA", "NVDA"];
 
 const initialPlans: Plan[] = [
-  { id: "1", asset: "BTC", amount: 50, cadence: "Weekly", next: "Mon, 9:00", active: true, invested: 1850 },
-  { id: "2", asset: "ETH", amount: 25, cadence: "Daily", next: "Tomorrow, 9:00", active: true, invested: 920 },
-  { id: "3", asset: "AAPL", amount: 100, cadence: "Monthly", next: "May 1", active: false, invested: 400 },
+  { id: "1", asset: "BTC", amount: 50, cadence: "Weekly", next: "Mon, 9:00", active: true, invested: 1850, target: 5000, projectedApy: 12.5, risk: "Medium" },
+  { id: "2", asset: "ETH", amount: 25, cadence: "Daily", next: "Tomorrow, 9:00", active: true, invested: 920, target: 2000, projectedApy: 14.2, risk: "Medium" },
+  { id: "3", asset: "AAPL", amount: 100, cadence: "Monthly", next: "May 1", active: false, invested: 400, target: 1200, projectedApy: 8.4, risk: "Low" },
 ];
 
 const Earn = () => {
@@ -33,24 +37,41 @@ const Earn = () => {
   const [asset, setAsset] = useState("BTC");
   const [amount, setAmount] = useState("50");
   const [cadence, setCadence] = useState<Cadence>("Weekly");
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  const create = () => {
+  const createOrUpdate = () => {
     const amt = parseFloat(amount);
     if (!amt || amt <= 0) {
       toast.error("Enter a valid amount");
       return;
     }
-    const newPlan: Plan = {
-      id: Math.random().toString(36).slice(2),
-      asset,
-      amount: amt,
-      cadence,
-      next: cadence === "Daily" ? "Tomorrow, 9:00" : cadence === "Weekly" ? "Mon, 9:00" : "1st of month",
-      active: true,
-      invested: 0,
-    };
-    setPlans((p) => [newPlan, ...p]);
-    toast.success(`Auto-invest plan created: $${amt} ${cadence.toLowerCase()} → ${asset}`);
+    if (editingId) {
+      setPlans(p => p.map(pl => pl.id === editingId ? { ...pl, asset, amount: amt, cadence } : pl));
+      toast.success(`Plan updated`);
+      setEditingId(null);
+    } else {
+      const newPlan: Plan = {
+        id: Math.random().toString(36).slice(2),
+        asset,
+        amount: amt,
+        cadence,
+        next: cadence === "Daily" ? "Tomorrow, 9:00" : cadence === "Weekly" ? "Mon, 9:00" : "1st of month",
+        active: true,
+        invested: 0,
+        target: amt * (cadence === "Daily" ? 30 : cadence === "Weekly" ? 52 : 12) * 2, // Mock target
+        projectedApy: Math.random() * 10 + 5,
+        risk: "Medium"
+      };
+      setPlans((p) => [newPlan, ...p]);
+      toast.success(`Auto-invest plan created: $${amt} ${cadence.toLowerCase()} → ${asset}`);
+    }
+  };
+
+  const startEdit = (p: Plan) => {
+    setAsset(p.asset);
+    setAmount(p.amount.toString());
+    setCadence(p.cadence);
+    setEditingId(p.id);
   };
 
   const toggle = (id: string) =>
@@ -114,9 +135,18 @@ const Earn = () => {
                 </TabsList>
               </Tabs>
             </div>
-            <Button variant="hero" className="w-full" onClick={create}>
-              <Plus className="h-4 w-4" /> Create plan
+            <Button variant="hero" className="w-full" onClick={createOrUpdate}>
+              {editingId ? <Edit2 className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+              {editingId ? "Update plan" : "Create plan"}
             </Button>
+            {editingId && (
+              <Button variant="ghost" className="w-full" onClick={() => {
+                setEditingId(null);
+                setAmount("50");
+              }}>
+                Cancel
+              </Button>
+            )}
             <div className="glass rounded-xl p-3 text-xs text-muted-foreground">
               Estimated monthly contribution from active plans:{" "}
               <span className="font-mono font-semibold text-foreground">
@@ -171,13 +201,29 @@ const Earn = () => {
                       <span className="flex items-center gap-1">
                         <CalendarClock className="h-3 w-3" /> Next: {p.next}
                       </span>
-                      <span>Invested: <span className="font-mono text-foreground">${p.invested.toLocaleString()}</span></span>
+                      <span className="flex items-center gap-1 text-success">
+                        <TrendingUp className="h-3 w-3" /> {p.projectedApy.toFixed(1)}% APY
+                      </span>
+                      <span className={`flex items-center gap-1 ${p.risk === "Low" ? "text-success" : p.risk === "Medium" ? "text-warning" : "text-destructive"}`}>
+                        {p.risk === "Low" ? <ShieldCheck className="h-3 w-3" /> : <ShieldAlert className="h-3 w-3" />} {p.risk} Risk
+                      </span>
+                    </div>
+                    
+                    <div className="mt-3 space-y-1.5">
+                      <div className="flex justify-between text-[10px] font-mono text-muted-foreground">
+                        <span>${p.invested.toLocaleString()} invested</span>
+                        <span>Target: ${p.target.toLocaleString()}</span>
+                      </div>
+                      <Progress value={(p.invested / p.target) * 100} className="h-1.5" />
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 mt-4 sm:mt-0">
                     <Button size="sm" variant="glass" onClick={() => toggle(p.id)}>
                       {p.active ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
-                      {p.active ? "Pause" : "Resume"}
+                      <span className="sr-only md:not-sr-only md:ml-1">{p.active ? "Pause" : "Resume"}</span>
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => startEdit(p)}>
+                      <Edit2 className="h-3.5 w-3.5" />
                     </Button>
                     <Button size="sm" variant="ghost" onClick={() => remove(p.id)}>
                       <Trash2 className="h-3 w-3 text-destructive" />

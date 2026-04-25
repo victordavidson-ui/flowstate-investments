@@ -53,12 +53,22 @@ const Sparkline = ({ data, up }: { data: number[]; up: boolean }) => {
             stroke={color}
             strokeWidth={1.8}
             fill={`url(#sp-${up})`}
+            isAnimationActive={true}
+            animationDuration={800}
+            animationEasing="ease-in-out"
           />
         </AreaChart>
       </ResponsiveContainer>
+      <div className={`text-[9px] font-mono text-center mt-1 ${up ? "text-success/70" : "text-destructive/70"}`}>
+        {up ? "+" : "-"}{Math.abs(data[data.length - 1] - data[0]).toFixed(1)}% this wk
+      </div>
     </div>
   );
 };
+
+import { useEffect } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 const MarketsPage = () => {
   const [tab, setTab] = useState<"all" | "crypto" | "stock" | "watch">("all");
@@ -68,6 +78,13 @@ const MarketsPage = () => {
     dir: "desc",
   });
   const [watch, setWatch] = useState<Set<string>>(new Set(["BTC", "NVDA"]));
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    const t = setTimeout(() => setLoading(false), 600);
+    return () => clearTimeout(t);
+  }, [tab, sort, q]);
 
   const toggleWatch = (sym: string) => {
     setWatch((s) => {
@@ -169,17 +186,40 @@ const MarketsPage = () => {
         </div>
 
         {/* Rows */}
-        <div className="divide-y divide-border/40">
-          {rows.length === 0 && (
+        <div className="divide-y divide-border/40 min-h-[400px]">
+          {loading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="grid grid-cols-[40px_1fr_auto] md:grid-cols-[40px_1.4fr_1fr_0.8fr_1fr_1fr_100px] items-center gap-4 px-4 md:px-6 py-4 animate-pulse-fast"
+              >
+                <div className="h-8 w-8 rounded-lg bg-muted/40" />
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-full bg-muted/40" />
+                  <div className="space-y-2">
+                    <div className="h-4 w-12 bg-muted/40 rounded" />
+                    <div className="h-3 w-20 bg-muted/20 rounded" />
+                  </div>
+                </div>
+                <div className="hidden md:block h-4 w-16 bg-muted/40 rounded" />
+                <div className="hidden md:block h-4 w-12 bg-muted/40 rounded" />
+                <div className="hidden md:block h-4 w-16 bg-muted/40 rounded" />
+                <div className="hidden md:block h-8 w-24 bg-muted/40 rounded" />
+                <div className="hidden md:flex justify-end">
+                  <div className="h-8 w-16 bg-muted/40 rounded-lg" />
+                </div>
+              </div>
+            ))
+          ) : rows.length === 0 ? (
             <div className="p-16 text-center">
               <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl glass mb-4">
                 <Search className="h-5 w-5 text-muted-foreground" />
               </div>
               <p className="text-sm text-muted-foreground">No assets match your search.</p>
             </div>
-          )}
-          {rows.map((r) => {
-            const up = r.change24h >= 0;
+          ) : (
+            rows.map((r) => {
+              const up = r.change24h >= 0;
             const starred = watch.has(r.sym);
             return (
               <div
@@ -244,13 +284,16 @@ const MarketsPage = () => {
                 </div>
 
                 <div className="hidden md:flex justify-end">
-                  <button className="rounded-lg bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 hover:border-primary hover:shadow-glow px-4 py-1.5 text-xs font-semibold transition-all">
+                  <button 
+                    onClick={() => toast.info(`Trading flow initiated for ${r.sym}.`)}
+                    className="rounded-lg bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 hover:border-primary hover:shadow-glow px-4 py-1.5 text-xs font-semibold transition-all active:scale-95"
+                  >
                     Trade
                   </button>
                 </div>
               </div>
             );
-          })}
+          }))}
         </div>
       </div>
     </div>

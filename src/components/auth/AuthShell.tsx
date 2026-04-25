@@ -55,16 +55,22 @@ export const AuthShell = ({
 
 export const AuthField = ({
   label,
+  error,
   ...props
-}: React.InputHTMLAttributes<HTMLInputElement> & { label: string }) => (
-  <div>
-    <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1.5 block">
+}: React.InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string }) => (
+  <div className="group">
+    <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1.5 block group-focus-within:text-primary transition-colors">
       {label}
     </label>
     <Input
       {...props}
-      className="bg-muted/40 border-border/60 focus-visible:ring-primary/40 focus-visible:border-primary/60 h-11"
+      className={`bg-muted/40 border-border/60 transition-all duration-300 h-11 ${
+        error 
+          ? "border-destructive/50 focus-visible:ring-destructive/20 focus-visible:border-destructive" 
+          : "focus-visible:ring-primary/20 focus-visible:border-primary/60 hover:border-primary/40 shadow-sm"
+      }`}
     />
+    {error && <p className="text-[10px] text-destructive mt-1.5 animate-fade-in">{error}</p>}
   </div>
 );
 

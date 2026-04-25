@@ -1,4 +1,4 @@
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis, PieChart, Pie, Cell } from "recharts";
 import {
   ArrowDownToLine,
   ArrowUpRight,
@@ -9,8 +9,11 @@ import {
   Repeat,
   TrendingDown,
   TrendingUp,
+  Clock,
+  PieChart as PieChartIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 const chartData = Array.from({ length: 40 }, (_, i) => ({
   d: i,
@@ -34,9 +37,33 @@ const transactions = [
 
 const DashboardPage = () => {
   const [hidden, setHidden] = useState(false);
+  const [timeRange, setTimeRange] = useState("1M");
+  const [greeting, setGreeting] = useState("Good day");
+
+  useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) setGreeting("Good morning");
+    else if (hour < 18) setGreeting("Good afternoon");
+    else setGreeting("Good evening");
+  }, []);
+
+  const allocation = [
+    { name: "BTC", value: 45, color: "hsl(38 100% 55%)" },
+    { name: "ETH", value: 30, color: "hsl(220 100% 60%)" },
+    { name: "SOL", value: 15, color: "hsl(152 80% 50%)" },
+    { name: "Other", value: 10, color: "hsl(280 80% 60%)" },
+  ];
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-2xl font-display font-semibold">
+          {greeting}, Victor <span className="inline-block animate-bounce ml-1">👋</span>
+        </h2>
+        <div className="text-sm text-muted-foreground flex items-center gap-2">
+          <Clock className="h-4 w-4" /> Market opens in 4h 12m
+        </div>
+      </div>
       {/* Top grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         {/* Balance */}
@@ -75,7 +102,23 @@ const DashboardPage = () => {
               </span>
             </div>
 
-            <div className="h-56 -mx-2 mt-6">
+            <div className="flex items-center justify-between mt-6 mb-2">
+              <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-lg">
+                {["1H", "24H", "7D", "1M", "1Y"].map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setTimeRange(t)}
+                    className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                      timeRange === t ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="h-56 -mx-2 mt-2">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>
                   <defs>
@@ -109,13 +152,14 @@ const DashboardPage = () => {
 
             <div className="grid grid-cols-3 gap-2 md:gap-3 mt-6">
               {[
-                { icon: Plus, label: "Deposit" },
-                { icon: ArrowDownToLine, label: "Withdraw" },
-                { icon: Repeat, label: "Trade" },
+                { icon: Plus, label: "Deposit", msg: "Deposit flow initiated." },
+                { icon: ArrowDownToLine, label: "Withdraw", msg: "Withdrawal flow initiated." },
+                { icon: Repeat, label: "Trade", msg: "Trading flow initiated." },
               ].map((a) => (
                 <button
                   key={a.label}
-                  className="flex items-center justify-center gap-2 rounded-xl bg-muted/50 hover:bg-primary/15 hover:text-primary border border-border/50 hover:border-primary/40 px-3 py-3 text-sm font-medium transition-all duration-300"
+                  onClick={() => toast.info(a.msg)}
+                  className="flex items-center justify-center gap-2 rounded-xl bg-muted/50 hover:bg-primary/15 hover:text-primary border border-border/50 hover:border-primary/40 px-3 py-3 text-sm font-medium transition-all duration-300 active:scale-95"
                 >
                   <a.icon className="h-4 w-4" />
                   {a.label}
@@ -127,43 +171,84 @@ const DashboardPage = () => {
 
         {/* Side stats */}
         <div className="grid grid-cols-2 lg:grid-cols-1 gap-4 md:gap-6">
-          <div className="glass rounded-3xl p-6">
-            <div className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">
-              24h P/L
+          <div className="glass rounded-3xl p-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4">
+              <PieChartIcon className="h-5 w-5 text-muted-foreground" />
             </div>
-            <div className="font-display text-2xl md:text-3xl font-bold text-success">
-              +$5,218.40
+            <div className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-4">
+              Allocation
             </div>
-            <div className="text-xs text-muted-foreground mt-1">vs yesterday</div>
-            <div className="h-12 -mx-2 mt-3">
+            <div className="h-32 mt-2 relative flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData.slice(-20)}>
-                  <defs>
-                    <linearGradient id="pl1" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(152 80% 50%)" stopOpacity={0.5} />
-                      <stop offset="100%" stopColor="hsl(152 80% 50%)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <Area type="monotone" dataKey="v" stroke="hsl(152 80% 50%)" strokeWidth={2} fill="url(#pl1)" />
-                </AreaChart>
+                <PieChart>
+                  <Pie
+                    data={allocation}
+                    innerRadius={40}
+                    outerRadius={55}
+                    paddingAngle={5}
+                    dataKey="value"
+                    stroke="none"
+                  >
+                    {allocation.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ background: "hsl(230 30% 8%)", border: "1px solid hsl(230 25% 16%)", borderRadius: "12px", fontSize: "12px" }}
+                    itemStyle={{ color: "#fff" }}
+                  />
+                </PieChart>
               </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-xs text-muted-foreground">Crypto</span>
+                <span className="font-bold text-sm">90%</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2 mt-4">
+              {allocation.map(a => (
+                <div key={a.name} className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full" style={{ backgroundColor: a.color }} />
+                  <span className="text-xs text-muted-foreground">{a.name}</span>
+                  <span className="text-xs font-medium ml-auto">{a.value}%</span>
+                </div>
+              ))}
             </div>
           </div>
           <div className="glass rounded-3xl p-6">
-            <div className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2">
-              Risk level
+            <div className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-4">
+              Top Movers
             </div>
-            <div className="font-display text-2xl md:text-3xl font-bold">Moderate</div>
-            <div className="text-xs text-muted-foreground mt-1 mb-3">
-              Diversified portfolio
-            </div>
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
-              <div className="h-full w-[55%] bg-gradient-to-r from-success via-warning to-destructive rounded-full" />
-            </div>
-            <div className="flex justify-between text-[10px] font-mono text-muted-foreground mt-2">
-              <span>Low</span>
-              <span>Medium</span>
-              <span>High</span>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-full bg-success/10 flex items-center justify-center">
+                    <TrendingUp className="h-4 w-4 text-success" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold">PEPE</div>
+                    <div className="text-xs text-muted-foreground">Pepe</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-success">+18.4%</div>
+                  <div className="text-xs text-muted-foreground">$0.000012</div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-full bg-success/10 flex items-center justify-center">
+                    <TrendingUp className="h-4 w-4 text-success" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold">FET</div>
+                    <div className="text-xs text-muted-foreground">Fetch.ai</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-success">+12.1%</div>
+                  <div className="text-xs text-muted-foreground">$1.84</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -224,36 +309,26 @@ const DashboardPage = () => {
             <h3 className="font-display text-lg font-semibold">Recent activity</h3>
             <button className="text-xs text-primary hover:text-primary-glow">View all</button>
           </div>
-          <div className="space-y-1">
+          <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border/60 before:to-transparent">
             {transactions.map((tx, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between p-3 rounded-xl hover:bg-muted/40 transition-colors"
+                className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active"
               >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`h-9 w-9 rounded-full flex items-center justify-center ${
-                      tx.up
-                        ? "bg-success/10 text-success"
-                        : "bg-destructive/10 text-destructive"
-                    }`}
-                  >
-                    {tx.up ? (
-                      <TrendingUp className="h-4 w-4" />
-                    ) : (
-                      <TrendingDown className="h-4 w-4" />
-                    )}
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium">
-                      {tx.t} {tx.asset}
-                    </div>
-                    <div className="text-xs text-muted-foreground">{tx.time}</div>
-                  </div>
+                <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-background bg-muted/40 text-muted-foreground shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 transition-colors group-hover:bg-primary/20 group-hover:text-primary group-hover:border-primary/30">
+                  {tx.up ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                 </div>
-                <div className="text-right">
-                  <div className="text-sm font-mono font-medium">{tx.amount}</div>
-                  <div className="text-xs text-muted-foreground">{tx.value}</div>
+                <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] glass rounded-xl p-3 flex flex-col transition-all group-hover:-translate-y-1 group-hover:shadow-elevated">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="text-sm font-semibold text-foreground">{tx.t} {tx.asset}</div>
+                    <time className="text-[10px] font-mono text-muted-foreground">{tx.time}</time>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs text-muted-foreground">{tx.value}</div>
+                    <div className={`text-sm font-mono font-medium ${tx.up ? "text-success" : "text-destructive"}`}>
+                      {tx.amount}
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}

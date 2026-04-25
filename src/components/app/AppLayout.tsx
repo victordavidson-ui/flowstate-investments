@@ -13,9 +13,18 @@ import {
   LogOut,
   Users,
   Repeat,
+  Plus,
+  ArrowDownToLine,
+  TrendingUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { NotificationsPanel } from "./NotificationsPanel";
 
 const navItems = [
@@ -182,10 +191,40 @@ export const AppLayout = () => {
         </header>
 
         <main className="p-4 md:p-8 pb-28 lg:pb-8">
-          <Outlet />
+          <div key={location.pathname} className="animate-fade-in-up">
+            <Outlet />
+          </div>
         </main>
       </div>
 
+      {/* Floating Action Button (Mobile) */}
+      <div className="lg:hidden fixed bottom-24 right-4 z-40">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-glow flex items-center justify-center active:scale-95 transition-all">
+              <Plus className="h-6 w-6" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="glass-strong border-border/40 mb-2 w-48">
+            <DropdownMenuItem className="gap-3 py-3 cursor-pointer">
+              <Plus className="h-4 w-4 text-primary" />
+              <span>Deposit</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="gap-3 py-3 cursor-pointer">
+              <ArrowDownToLine className="h-4 w-4 text-primary" />
+              <span>Withdraw</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="gap-3 py-3 cursor-pointer">
+              <Repeat className="h-4 w-4 text-primary" />
+              <span>Trade</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="gap-3 py-3 cursor-pointer">
+              <TrendingUp className="h-4 w-4 text-primary" />
+              <span>Earn</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
       {/* Mobile bottom nav */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 glass-strong border-t border-border/40">
         <div className="flex items-stretch pb-[env(safe-area-inset-bottom)] overflow-x-auto">

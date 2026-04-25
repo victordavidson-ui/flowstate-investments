@@ -127,6 +127,14 @@ export default {
           "0%, 100%": { backgroundPosition: "0% 50%" },
           "50%": { backgroundPosition: "100% 50%" },
         },
+        "pulse-fast": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.5" },
+        },
+        "button-press": {
+          "0%, 100%": { transform: "scale(1)" },
+          "50%": { transform: "scale(0.97)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -140,6 +148,8 @@ export default {
         "ticker": "ticker 40s linear infinite",
         "blink": "blink 2s ease-in-out infinite",
         "gradient-shift": "gradient-shift 8s ease infinite",
+        "pulse-fast": "pulse-fast 1s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "button-press": "button-press 0.2s cubic-bezier(0.4, 0, 0.2, 1) both",
       },
     },
   },
