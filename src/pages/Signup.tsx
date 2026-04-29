@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { AuthShell, AuthField, SocialButtons } from "@/components/auth/AuthShell";
 import { ArrowRight, Check, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const perks = [
   "Trade 200+ assets with zero hidden fees",
@@ -14,21 +15,27 @@ const perks = [
 const Signup = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
     if (!firstName) newErrors.firstName = "First name required";
     if (!lastName) newErrors.lastName = "Last name required";
+    if (!username) newErrors.username = "Username required";
     if (!email) newErrors.email = "Email required";
     else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Invalid email";
     if (!password) newErrors.password = "Password required";
-    else if (password.length < 8) newErrors.password = "At least 8 characters";
+    else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/.test(password)) {
+      newErrors.password = "Requires 8+ chars, upper, lower, numbers & special char";
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -39,6 +46,12 @@ const Signup = () => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
+      login({
+        firstName,
+        lastName,
+        email,
+        username,
+      });
       navigate("/kyc");
     }, 800);
   };
@@ -82,6 +95,13 @@ const Signup = () => {
           />
         </div>
         <AuthField 
+          label="Username" 
+          placeholder="cryptowhale" 
+          value={username} 
+          onChange={e => setUsername(e.target.value)} 
+          error={errors.username} 
+        />
+        <AuthField 
           label="Email" 
           type="email" 
           placeholder="you@netflow.io" 
@@ -111,8 +131,8 @@ const Signup = () => {
           <input type="checkbox" className="accent-primary mt-0.5" defaultChecked />
           <span>
             I agree to the{" "}
-            <a href="#" className="text-primary hover:text-primary-glow">Terms</a> and{" "}
-            <a href="#" className="text-primary hover:text-primary-glow">Privacy Policy</a>
+            <Link to="/terms" className="text-primary hover:text-primary-glow">Terms</Link> and{" "}
+            <Link to="/privacy" className="text-primary hover:text-primary-glow">Privacy Policy</Link>
           </span>
         </label>
 

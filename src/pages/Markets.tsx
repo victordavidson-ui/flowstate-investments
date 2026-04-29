@@ -3,34 +3,7 @@ import { Area, AreaChart, ResponsiveContainer } from "recharts";
 import { ArrowUpDown, Bitcoin, Search, Star, TrendingDown, TrendingUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
-type Asset = {
-  sym: string;
-  name: string;
-  type: "crypto" | "stock";
-  price: number;
-  change24h: number;
-  volume: string;
-  marketCap: string;
-  spark: number[];
-};
-
-const genSpark = (trend: number) =>
-  Array.from({ length: 24 }, (_, i) => 50 + Math.sin(i / 3) * 8 + i * trend + Math.random() * 4);
-
-const seed: Asset[] = [
-  { sym: "BTC", name: "Bitcoin", type: "crypto", price: 67432.18, change24h: 2.41, volume: "$28.4B", marketCap: "$1.32T", spark: genSpark(0.8) },
-  { sym: "ETH", name: "Ethereum", type: "crypto", price: 3521.9, change24h: 1.82, volume: "$14.2B", marketCap: "$423B", spark: genSpark(0.5) },
-  { sym: "SOL", name: "Solana", type: "crypto", price: 184.22, change24h: -0.64, volume: "$3.1B", marketCap: "$86B", spark: genSpark(-0.3) },
-  { sym: "AVAX", name: "Avalanche", type: "crypto", price: 38.71, change24h: 4.02, volume: "$890M", marketCap: "$15B", spark: genSpark(1.1) },
-  { sym: "DOGE", name: "Dogecoin", type: "crypto", price: 0.1421, change24h: -2.1, volume: "$680M", marketCap: "$20B", spark: genSpark(-0.6) },
-  { sym: "LINK", name: "Chainlink", type: "crypto", price: 17.84, change24h: 1.15, volume: "$420M", marketCap: "$10.5B", spark: genSpark(0.4) },
-  { sym: "AAPL", name: "Apple Inc.", type: "stock", price: 229.87, change24h: 0.91, volume: "$6.8B", marketCap: "$3.5T", spark: genSpark(0.3) },
-  { sym: "TSLA", name: "Tesla Inc.", type: "stock", price: 248.5, change24h: -1.23, volume: "$12.4B", marketCap: "$790B", spark: genSpark(-0.4) },
-  { sym: "NVDA", name: "NVIDIA Corp.", type: "stock", price: 1142.04, change24h: 3.18, volume: "$22.1B", marketCap: "$2.8T", spark: genSpark(1.2) },
-  { sym: "MSFT", name: "Microsoft", type: "stock", price: 428.12, change24h: 0.52, volume: "$5.2B", marketCap: "$3.2T", spark: genSpark(0.2) },
-  { sym: "AMZN", name: "Amazon", type: "stock", price: 186.92, change24h: 1.65, volume: "$8.1B", marketCap: "$1.95T", spark: genSpark(0.6) },
-  { sym: "META", name: "Meta Platforms", type: "stock", price: 512.28, change24h: -0.82, volume: "$4.3B", marketCap: "$1.3T", spark: genSpark(-0.2) },
-];
+import { useMarketData } from "@/hooks/useMarketData";
 
 type SortKey = "sym" | "price" | "change24h" | "volume";
 
@@ -79,6 +52,7 @@ const MarketsPage = () => {
   });
   const [watch, setWatch] = useState<Set<string>>(new Set(["BTC", "NVDA"]));
   const [loading, setLoading] = useState(false);
+  const { assets } = useMarketData();
 
   useEffect(() => {
     setLoading(true);
@@ -95,7 +69,7 @@ const MarketsPage = () => {
   };
 
   const rows = useMemo(() => {
-    let r = seed;
+    let r = assets;
     if (tab === "crypto") r = r.filter((x) => x.type === "crypto");
     if (tab === "stock") r = r.filter((x) => x.type === "stock");
     if (tab === "watch") r = r.filter((x) => watch.has(x.sym));
@@ -114,7 +88,7 @@ const MarketsPage = () => {
         : String(vb).localeCompare(String(va));
     });
     return r;
-  }, [tab, q, sort, watch]);
+  }, [tab, q, sort, watch, assets]);
 
   const toggleSort = (key: SortKey) => {
     setSort((s) => ({

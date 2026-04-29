@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis, Cell } from "recharts";
-import { Bitcoin, TrendingUp, TrendingDown, Star, Zap } from "lucide-react";
+import { Bitcoin, TrendingUp, TrendingDown, Star, Zap, History } from "lucide-react";
+import { usePortfolio } from "@/contexts/PortfolioContext";
+import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 // Mock OHLC candles
 type Candle = { t: number; o: number; h: number; l: number; c: number; v: number };
@@ -66,6 +69,7 @@ const TradePage = () => {
   const [price, setPrice] = useState("67432.18");
   const [amount, setAmount] = useState("");
   const [risk, setRisk] = useState(30);
+  const { executeTrade, state } = usePortfolio();
 
   const candles = useMemo(() => genCandles(), []);
   const last = candles[candles.length - 1];
@@ -94,6 +98,13 @@ const TradePage = () => {
                 <div className="text-xs text-muted-foreground">Bitcoin · Spot</div>
               </div>
             </div>
+            
+            <Link 
+              to="/history"
+              className="ml-auto hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border/50 text-xs font-mono text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors"
+            >
+              <History className="h-4 w-4" /> Trade History
+            </Link>
             <div className="grid grid-cols-2 md:flex md:items-center md:gap-8 gap-3">
               <div>
                 <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
@@ -312,7 +323,7 @@ const TradePage = () => {
             <div className="glass rounded-xl p-3 space-y-1.5">
               <div className="flex justify-between text-xs">
                 <span className="text-muted-foreground">Available</span>
-                <span className="font-mono">12,480.50 USDT</span>
+                <span className="font-mono">{state.balanceUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })} USDT</span>
               </div>
               <div className="flex justify-between text-xs">
                 <span className="text-muted-foreground">Est. total</span>
@@ -327,6 +338,25 @@ const TradePage = () => {
             </div>
 
             <button
+              onClick={() => {
+                if (!amount || isNaN(+amount)) return;
+                const total = (+amount * +price).toFixed(2);
+                if (side === "buy" && +total > state.balanceUSD) {
+                  toast.error("Insufficient USDT balance");
+                  return;
+                }
+                executeTrade({
+                  pair: "BTC/USDT",
+                  side: side === "buy" ? "Buy" : "Sell",
+                  type: orderType === "market" ? "Market" : "Limit",
+                  amount: amount,
+                  price: price,
+                  total: total,
+                  status: "Filled"
+                });
+                toast.success(`${side === "buy" ? "Bought" : "Sold"} ${amount} BTC successfully`);
+                setAmount("");
+              }}
               className={`w-full rounded-xl py-3 text-sm font-semibold transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 ${
                 side === "buy"
                   ? "bg-success/20 text-success border border-success/40 hover:bg-success/30 hover:shadow-[0_0_20px_hsl(var(--success)/0.3)]"

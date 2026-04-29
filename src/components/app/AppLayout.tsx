@@ -16,9 +16,18 @@ import {
   Plus,
   ArrowDownToLine,
   TrendingUp,
+  Crown,
+  Gift,
+  HelpCircle,
+  Menu,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +43,17 @@ const navItems = [
   { to: "/wallet", label: "Wallet", icon: Wallet },
   { to: "/copy", label: "Copy", icon: Users },
   { to: "/earn", label: "Earn", icon: Repeat },
+  { to: "/plans", label: "Plans", icon: Crown },
+  { to: "/referrals", label: "Referrals", icon: Gift },
+  { to: "/support", label: "Support", icon: HelpCircle },
+  { to: "/settings", label: "Settings", icon: Settings },
+];
+
+const mobileFooterItems = [
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/markets", label: "Markets", icon: LineChart },
+  { to: "/trade", label: "Trade", icon: CandlestickChart },
+  { to: "/wallet", label: "Wallet", icon: Wallet },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
@@ -111,7 +131,8 @@ export const AppLayout = () => {
     navItems.find((n) => location.pathname.startsWith(n.to))?.label ?? "Dashboard";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      <div className="grid-bg-animated" />
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex fixed inset-y-0 left-0 w-64 flex-col glass-strong border-r border-border/40 z-40">
         <div className="p-6">
@@ -179,13 +200,51 @@ export const AppLayout = () => {
               type="button"
               aria-label="Open notifications"
               onClick={() => setNotifOpen(true)}
-              className="relative h-10 w-10 rounded-xl glass hover:border-primary/40 transition-colors flex items-center justify-center"
+              className="relative h-10 w-10 rounded-xl glass hover:border-primary/40 transition-colors hidden md:flex items-center justify-center"
             >
               <Bell className="h-4 w-4" />
               <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary shadow-glow animate-blink" />
             </button>
-            <div className="h-10 w-10 rounded-xl bg-gradient-primary flex items-center justify-center text-primary-foreground font-display font-bold shadow-glow">
+            <div className="hidden md:flex h-10 w-10 rounded-xl bg-gradient-primary items-center justify-center text-primary-foreground font-display font-bold shadow-glow">
               A
+            </div>
+            {/* Mobile Hamburger Menu */}
+            <div className="lg:hidden">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <button className="relative h-10 w-10 rounded-xl glass hover:border-primary/40 transition-colors flex items-center justify-center">
+                    <Menu className="h-5 w-5" />
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="right" className="glass-strong border-l border-border/40 p-0 w-[280px]">
+                  <div className="flex flex-col h-full">
+                    <div className="p-6">
+                      <div className="flex items-center gap-2">
+                        <div className="h-9 w-9 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
+                          <Zap className="h-5 w-5 text-primary-foreground" strokeWidth={2.5} />
+                        </div>
+                        <span className="font-display text-xl font-bold tracking-tight">
+                          NET<span className="text-gradient-primary">FLOW</span>
+                        </span>
+                      </div>
+                    </div>
+                    <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
+                      <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground px-3 mb-2 mt-4">
+                        Platform
+                      </div>
+                      {navItems.map((n) => (
+                        <SidebarLink key={n.to} to={n.to} label={n.label} Icon={n.icon} />
+                      ))}
+                    </nav>
+                    <div className="p-4 border-t border-border/40">
+                      <button className="flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-all">
+                        <LogOut className="h-4 w-4" />
+                        Sign out
+                      </button>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </header>
@@ -228,11 +287,29 @@ export const AppLayout = () => {
       {/* Mobile bottom nav */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 glass-strong border-t border-border/40">
         <div className="flex items-stretch pb-[env(safe-area-inset-bottom)] overflow-x-auto">
-          {navItems.map((n) => (
+          {mobileFooterItems.map((n) => (
             <MobileNavItem key={n.to} to={n.to} label={n.label} Icon={n.icon} />
           ))}
         </div>
       </nav>
+
+      {/* Floating 24/7 Support Widget */}
+      <div className="fixed bottom-6 right-6 z-50 hidden lg:block">
+        <button 
+          onClick={() => {
+            const el = document.getElementById("support-chat-toast");
+            if (!el) {
+              import("sonner").then(({ toast }) => {
+                toast.info("Connecting to Support Agent...", { id: "support-chat-toast" });
+              });
+            }
+          }}
+          className="h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-[0_0_20px_hsl(var(--primary)/0.4)] flex items-center justify-center hover:scale-110 active:scale-95 transition-all group"
+        >
+          <HelpCircle className="h-6 w-6 group-hover:hidden" />
+          <span className="hidden group-hover:block font-bold text-xs">Chat</span>
+        </button>
+      </div>
 
       <NotificationsPanel open={notifOpen} onOpenChange={setNotifOpen} />
     </div>

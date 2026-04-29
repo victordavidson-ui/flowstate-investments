@@ -20,25 +20,16 @@ const chartData = Array.from({ length: 40 }, (_, i) => ({
   v: 120000 + Math.sin(i / 3) * 6000 + i * 420 + Math.random() * 2200,
 }));
 
-const assets = [
-  { sym: "BTC", name: "Bitcoin", price: 67432.18, change: 2.41, up: true, qty: 0.842, value: 56767.89 },
-  { sym: "ETH", name: "Ethereum", price: 3521.9, change: 1.82, up: true, qty: 12.4, value: 43671.56 },
-  { sym: "AAPL", name: "Apple Inc.", price: 229.87, change: 0.91, up: true, qty: 84, value: 19309.08 },
-  { sym: "SOL", name: "Solana", price: 184.22, change: -0.64, up: false, qty: 210.5, value: 38778.31 },
-];
-
-const transactions = [
-  { t: "Buy", asset: "BTC", amount: "+0.025", value: "$1,685.80", time: "2m ago", up: true },
-  { t: "Sell", asset: "SOL", amount: "-10.0", value: "$1,842.20", time: "1h ago", up: false },
-  { t: "Deposit", asset: "USD", amount: "+$5,000", value: "USDC", time: "3h ago", up: true },
-  { t: "Buy", asset: "ETH", amount: "+1.50", value: "$5,282.85", time: "Yesterday", up: true },
-  { t: "Withdraw", asset: "USD", amount: "-$2,000", value: "Bank", time: "2 days ago", up: false },
-];
+import { useMarketData } from "@/hooks/useMarketData";
+import { usePortfolio } from "@/contexts/PortfolioContext";
 
 const DashboardPage = () => {
   const [hidden, setHidden] = useState(false);
   const [timeRange, setTimeRange] = useState("1M");
   const [greeting, setGreeting] = useState("Good day");
+
+  const { assets: marketAssets } = useMarketData();
+  const { state, toggleDemo } = usePortfolio();
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -46,6 +37,25 @@ const DashboardPage = () => {
     else if (hour < 18) setGreeting("Good afternoon");
     else setGreeting("Good evening");
   }, []);
+
+  const portfolioAssets = Object.entries(state.holdings).map(([sym, qty]) => {
+    const marketAsset = marketAssets.find(a => a.sym === sym);
+    if (!marketAsset) return null;
+    return {
+      sym,
+      name: marketAsset.name,
+      price: marketAsset.price,
+      change: marketAsset.change24h,
+      up: marketAsset.change24h >= 0,
+      qty,
+      value: marketAsset.price * qty,
+    };
+  }).filter(Boolean) as any[];
+
+  const totalHoldingsValue = portfolioAssets.reduce((sum, a) => sum + a.value, 0);
+  const totalBalance = state.balanceUSD + totalHoldingsValue;
+
+  const topMovers = [...marketAssets].sort((a, b) => b.change24h - a.change24h).slice(0, 2);
 
   const allocation = [
     { name: "BTC", value: 45, color: "hsl(38 100% 55%)" },
@@ -57,9 +67,17 @@ const DashboardPage = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-2xl font-display font-semibold">
-          {greeting}, Victor <span className="inline-block animate-bounce ml-1">👋</span>
-        </h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-2xl font-display font-semibold">
+            {greeting}, Victor <span className="inline-block animate-bounce ml-1">👋</span>
+          </h2>
+          <button 
+            onClick={toggleDemo}
+            className={`px-3 py-1 rounded-full text-xs font-mono font-semibold transition-all border ${state.isDemo ? "bg-warning/20 text-warning border-warning/50" : "bg-primary/10 text-primary border-primary/30"}`}
+          >
+            {state.isDemo ? "Demo Account" : "Real Account"}
+          </button>
+        </div>
         <div className="text-sm text-muted-foreground flex items-center gap-2">
           <Clock className="h-4 w-4" /> Market opens in 4h 12m
         </div>
@@ -86,7 +104,7 @@ const DashboardPage = () => {
                   {hidden ? (
                     "••••••••"
                   ) : (
-                    <>$158,526<span className="text-muted-foreground">.84</span></>
+                    <>${Math.floor(totalBalance).toLocaleString()}<span className="text-muted-foreground">.{(totalBalance % 1).toFixed(2).substring(2)}</span></>
                   )}
                 </div>
                 <div className="flex items-center gap-2 mt-2">
@@ -219,36 +237,25 @@ const DashboardPage = () => {
               Top Movers
             </div>
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-full bg-success/10 flex items-center justify-center">
-                    <TrendingUp className="h-4 w-4 text-success" />
+              {topMovers.map(m => (
+                <div key={m.sym} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className={`h-8 w-8 rounded-full flex items-center justify-center ${m.change24h >= 0 ? 'bg-success/10' : 'bg-destructive/10'}`}>
+                      {m.change24h >= 0 ? <TrendingUp className="h-4 w-4 text-success" /> : <TrendingDown className="h-4 w-4 text-destructive" />}
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold">{m.sym}</div>
+                      <div className="text-xs text-muted-foreground">{m.name}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-sm font-semibold">PEPE</div>
-                    <div className="text-xs text-muted-foreground">Pepe</div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm font-semibold text-success">+18.4%</div>
-                  <div className="text-xs text-muted-foreground">$0.000012</div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-full bg-success/10 flex items-center justify-center">
-                    <TrendingUp className="h-4 w-4 text-success" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold">FET</div>
-                    <div className="text-xs text-muted-foreground">Fetch.ai</div>
+                  <div className="text-right">
+                    <div className={`text-sm font-semibold ${m.change24h >= 0 ? 'text-success' : 'text-destructive'}`}>
+                      {m.change24h >= 0 ? '+' : ''}{m.change24h.toFixed(2)}%
+                    </div>
+                    <div className="text-xs text-muted-foreground">${m.price.toFixed(2)}</div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-sm font-semibold text-success">+12.1%</div>
-                  <div className="text-xs text-muted-foreground">$1.84</div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -264,7 +271,7 @@ const DashboardPage = () => {
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {assets.map((a) => (
+            {portfolioAssets.map((a) => (
               <div
                 key={a.sym}
                 className="group glass rounded-2xl p-4 hover:shadow-elevated hover:-translate-y-0.5 transition-all cursor-pointer glow-border"
@@ -292,9 +299,15 @@ const DashboardPage = () => {
                     <div className="text-sm font-mono">{a.qty} {a.sym}</div>
                   </div>
                   <div className="text-right">
+                    <div className="text-xs text-muted-foreground mb-0.5">Price</div>
+                    <div className="text-sm font-mono font-semibold">
+                      ${a.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                    </div>
+                  </div>
+                  <div className="text-right ml-4">
                     <div className="text-xs text-muted-foreground mb-0.5">Value</div>
                     <div className="text-sm font-mono font-semibold">
-                      ${a.value.toLocaleString()}
+                      ${a.value.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                     </div>
                   </div>
                 </div>
@@ -310,9 +323,9 @@ const DashboardPage = () => {
             <button className="text-xs text-primary hover:text-primary-glow">View all</button>
           </div>
           <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border/60 before:to-transparent">
-            {transactions.map((tx, i) => (
+            {state.transactions.slice(0, 5).map((tx, i) => (
               <div
-                key={i}
+                key={tx.id}
                 className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active"
               >
                 <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-background bg-muted/40 text-muted-foreground shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 transition-colors group-hover:bg-primary/20 group-hover:text-primary group-hover:border-primary/30">
@@ -320,8 +333,8 @@ const DashboardPage = () => {
                 </div>
                 <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] glass rounded-xl p-3 flex flex-col transition-all group-hover:-translate-y-1 group-hover:shadow-elevated">
                   <div className="flex items-center justify-between mb-1">
-                    <div className="text-sm font-semibold text-foreground">{tx.t} {tx.asset}</div>
-                    <time className="text-[10px] font-mono text-muted-foreground">{tx.time}</time>
+                    <div className="text-sm font-semibold text-foreground">{tx.type} {tx.asset}</div>
+                    <time className="text-[10px] font-mono text-muted-foreground">{new Date(tx.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</time>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="text-xs text-muted-foreground">{tx.value}</div>
@@ -332,6 +345,9 @@ const DashboardPage = () => {
                 </div>
               </div>
             ))}
+            {state.transactions.length === 0 && (
+              <div className="text-center text-sm text-muted-foreground py-8">No recent activity</div>
+            )}
           </div>
         </div>
       </div>

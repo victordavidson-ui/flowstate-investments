@@ -48,8 +48,8 @@
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(186 100% 55%) 0%, hsl(268 90% 62%) 100%);
     --gradient-hero: radial-gradient(ellipse 80% 60% at 50% 0%, hsl(268 90% 25% / 0.6), transparent 70%),
-                     radial-gradient(ellipse 60% 50% at 80% 30%, hsl(186 100% 30% / 0.4), transparent 70%),
-                     radial-gradient(ellipse 70% 60% at 10% 80%, hsl(275 95% 30% / 0.3), transparent 70%);
+      radial-gradient(ellipse 60% 50% at 80% 30%, hsl(186 100% 30% / 0.4), transparent 70%),
+      radial-gradient(ellipse 70% 60% at 10% 80%, hsl(275 95% 30% / 0.3), transparent 70%);
     --gradient-card: linear-gradient(135deg, hsl(230 30% 10% / 0.8) 0%, hsl(230 35% 6% / 0.6) 100%);
     --gradient-glow: radial-gradient(circle at center, hsl(186 100% 55% / 0.3), transparent 70%);
     --gradient-text: linear-gradient(135deg, hsl(210 40% 98%) 0%, hsl(186 100% 75%) 50%, hsl(275 95% 78%) 100%);
@@ -110,9 +110,11 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "cv11", "ss01", "ss03";
+    background-color: hsl(var(--background));
     background-image:
-      radial-gradient(ellipse 100% 50% at 50% -10%, hsl(268 90% 20% / 0.5), transparent 60%),
-      radial-gradient(ellipse 60% 40% at 90% 10%, hsl(186 100% 25% / 0.3), transparent 70%);
+      radial-gradient(ellipse 100% 50% at 50% -20%, hsl(268 90% 20% / 0.4), transparent 50%),
+      radial-gradient(ellipse 80% 50% at 80% 20%, hsl(186 100% 25% / 0.25), transparent 50%),
+      radial-gradient(ellipse 60% 60% at 20% 80%, hsl(230 100% 15% / 0.3), transparent 50%);
     background-attachment: fixed;
   }
 
@@ -123,13 +125,23 @@
   }
 
   /* Scrollbar */
-  ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-track { background: hsl(var(--background)); }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+  }
+
   ::-webkit-scrollbar-thumb {
     background: hsl(var(--muted));
     border-radius: 10px;
   }
-  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary) / 0.5); }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.5);
+  }
 }
 
 @layer components {
@@ -166,6 +178,7 @@
   .glow-border {
     position: relative;
   }
+
   .glow-border::before {
     content: "";
     position: absolute;
@@ -180,14 +193,47 @@
     opacity: 0.5;
     transition: opacity 0.4s var(--ease-smooth);
   }
-  .glow-border:hover::before { opacity: 1; }
+
+  .glow-border:hover::before {
+    opacity: 1;
+  }
 
   .grid-bg {
-    background-image:
-      linear-gradient(hsl(210 40% 98% / 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(210 40% 98% / 0.04) 1px, transparent 1px);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
     background-size: 60px 60px;
-    mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 30%, transparent 80%);
+    background-image:
+      linear-gradient(to right, hsl(210 40% 98% / 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(210 40% 98% / 0.03) 1px, transparent 1px);
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 30%, black 20%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 30%, black 20%, transparent 80%);
+  }
+
+  /* Animated subtle grid for a high-tech feel */
+  .grid-bg-animated {
+    position: absolute;
+    inset: -100%;
+    pointer-events: none;
+    z-index: -1;
+    background-size: 40px 40px;
+    background-image:
+      linear-gradient(to right, hsl(210 40% 98% / 0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(210 40% 98% / 0.02) 1px, transparent 1px);
+    mask-image: radial-gradient(circle at center, black 0%, transparent 40%);
+    -webkit-mask-image: radial-gradient(circle at center, black 0%, transparent 40%);
+    animation: gridMove 40s linear infinite;
+  }
+
+  @keyframes gridMove {
+    0% {
+      transform: translateY(0);
+    }
+
+    100% {
+      transform: translateY(40px);
+    }
   }
 
   .glow-orb {

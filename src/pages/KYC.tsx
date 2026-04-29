@@ -24,12 +24,12 @@ const steps = [
 
 const KYC = () => {
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({ firstName: "", lastName: "", dob: "", nationality: "" });
+  const [formData, setFormData] = useState({ firstName: "", lastName: "", dob: "", nationality: "", phone: "" });
   const [docUploaded, setDocUploaded] = useState(false);
   const [selfieTaken, setSelfieTaken] = useState(false);
   
   const canContinue = () => {
-    if (step === 1) return formData.firstName && formData.lastName && formData.dob && formData.nationality;
+    if (step === 1) return formData.firstName && formData.lastName && formData.dob && formData.nationality && formData.phone;
     if (step === 2) return docUploaded;
     if (step === 3) return selfieTaken;
     return true;
@@ -119,6 +119,9 @@ const KYC = () => {
                   <Field label="Legal last name" placeholder="Nakamoto" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} />
                   <Field label="Date of birth" type="date" value={formData.dob} onChange={e => setFormData({...formData, dob: e.target.value})} />
                   <Field label="Nationality" placeholder="United States" value={formData.nationality} onChange={e => setFormData({...formData, nationality: e.target.value})} />
+                  <div className="md:col-span-2">
+                    <Field label="Phone number" type="tel" placeholder="+1 (555) 000-0000" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+                  </div>
                   <div className="md:col-span-2">
                     <Field label="Residential address" placeholder="123 Market Street" />
                   </div>

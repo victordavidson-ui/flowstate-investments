@@ -49,15 +49,15 @@ export const Footer = () => {
     <footer className="border-t border-border/40 pt-20 pb-10 relative">
       <div className="container">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-16">
-          <div className="col-span-2">
-            <a href="#" className="flex items-center gap-2 mb-5">
-              <div className="h-9 w-9 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
-                <Zap className="h-5 w-5 text-primary-foreground" strokeWidth={2.5} />
-              </div>
-              <span className="font-display text-xl font-bold">
-                NET<span className="text-gradient-primary">FLOW</span>
-              </span>
-            </a>
+          <div className="mb-10 md:mb-0 space-y-4">
+          <Link to="/" className="flex items-center gap-2 mb-5">
+            <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center">
+              <Zap className="h-4 w-4 text-primary-foreground" />
+            </div>
+            <span className="font-display text-lg font-bold">
+              NET<span className="text-gradient-primary">FLOW</span>
+            </span>
+          </Link>
             <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
               Smart investing for the next generation. Trade crypto, stocks, and ETFs from one elegant platform.
             </p>

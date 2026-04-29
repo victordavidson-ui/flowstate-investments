@@ -1,4 +1,4 @@
-import { Bell, CreditCard, Globe, Key, ShieldCheck, User } from "lucide-react";
+import { Bell, CreditCard, Globe, Key, ShieldCheck, User, HelpCircle, MessageSquare } from "lucide-react";
 
 const groups = [
   {
@@ -15,6 +15,13 @@ const groups = [
       { icon: Bell, label: "Notifications", desc: "Price alerts, news" },
       { icon: Globe, label: "Language & region", desc: "English · USD" },
       { icon: CreditCard, label: "Payment methods", desc: "2 cards · 1 bank" },
+    ],
+  },
+  {
+    title: "Support",
+    items: [
+      { icon: HelpCircle, label: "Help Center", desc: "FAQs and guides" },
+      { icon: MessageSquare, label: "Live Chat", desc: "Speak with an agent" },
     ],
   },
 ];

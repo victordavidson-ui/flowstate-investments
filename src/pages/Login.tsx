@@ -3,20 +3,23 @@ import { Button } from "@/components/ui/button";
 import { AuthShell, AuthField, SocialButtons } from "@/components/auth/AuthShell";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{email?: string, password?: string}>({});
+  const [errors, setErrors] = useState<{identifier?: string, password?: string}>({});
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: {email?: string, password?: string} = {};
-    if (!email) newErrors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Invalid email format";
+    const newErrors: {identifier?: string, password?: string} = {};
+    if (!identifier) newErrors.identifier = "Email or Username is required";
+    
     if (!password) newErrors.password = "Password is required";
     else if (password.length < 8) newErrors.password = "Password must be at least 8 characters";
 
@@ -30,7 +33,15 @@ const Login = () => {
     // Mock API call
     setTimeout(() => {
       setLoading(false);
-      navigate("/dashboard");
+      login({
+        firstName: "Victor", // Mock user data
+        lastName: "Davidson",
+        email: identifier.includes("@") ? identifier : `${identifier}@example.com`,
+        username: identifier.includes("@") ? identifier.split("@")[0] : identifier,
+      });
+      // Redirect to the page they tried to visit, or dashboard
+      const from = location.state?.from?.pathname || "/dashboard";
+      navigate(from, { replace: true });
     }, 800);
   };
   return (
@@ -57,12 +68,12 @@ const Login = () => {
 
       <form className="space-y-4" onSubmit={handleLogin}>
         <AuthField 
-          label="Email" 
-          type="email" 
-          placeholder="you@netflow.io" 
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          error={errors.email}
+          label="Email or Username" 
+          type="text" 
+          placeholder="you@netflow.io or username" 
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
+          error={errors.identifier}
         />
         <AuthField 
           label="Password" 
@@ -78,9 +89,9 @@ const Login = () => {
             <input type="checkbox" className="accent-primary" />
             Remember me
           </label>
-          <a href="#" className="text-primary hover:text-primary-glow">
+          <Link to="/forgot-password" className="text-primary hover:text-primary-glow">
             Forgot password?
-          </a>
+          </Link>
         </div>
 
         <Button variant="hero" size="lg" className="w-full group" disabled={loading}>
