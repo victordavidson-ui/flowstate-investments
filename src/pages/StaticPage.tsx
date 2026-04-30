@@ -24,20 +24,30 @@ export const StaticPage = ({ eyebrow, title, subtitle, sections, cta }: StaticPa
 
       <Navbar />
       
-      <main className="pt-32 pb-20 px-4">
-        <div className="container max-w-4xl mx-auto">
-          <div className="text-center mb-20 animate-fade-in">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-mono uppercase tracking-[0.2em] mb-6">
+      <main className="pb-20">
+        {/* Hero Section */}
+        <section className="relative pt-32 pb-20 overflow-hidden">
+          <div className="absolute inset-0 -z-10">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full bg-gradient-to-b from-primary/10 via-transparent to-transparent opacity-50" />
+            <div className="absolute top-1/4 right-0 w-96 h-96 bg-secondary/10 rounded-full blur-[100px] animate-glow-pulse" />
+            <div className="absolute top-1/2 left-0 w-72 h-72 bg-primary/10 rounded-full blur-[80px]" />
+          </div>
+          
+          <div className="container max-w-5xl mx-auto px-4 text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-mono uppercase tracking-[0.2em] mb-8 animate-fade-in">
               <Zap className="h-3 w-3" />
               {eyebrow}
             </div>
-            <h1 className="font-display text-4xl md:text-7xl font-bold tracking-tight mb-8 bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/60">
+            <h1 className="font-display text-5xl md:text-8xl font-bold tracking-tighter mb-8 bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/40 leading-[0.9] animate-fade-in-up">
               {title}
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium">
+            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '200ms' }}>
               {subtitle}
             </p>
           </div>
+        </section>
+
+        <div className="container max-w-4xl mx-auto px-4">
 
           <div className="space-y-8">
             {sections.map((s, i) => (

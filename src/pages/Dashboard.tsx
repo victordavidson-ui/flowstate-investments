@@ -115,11 +115,14 @@ const DashboardPage = () => {
                     {hidden ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                   </button>
                 </div>
-                <div className="font-display text-4xl md:text-6xl font-bold tracking-tight">
+                <div className="font-display text-4xl md:text-6xl font-bold tracking-tight break-words">
                   {hidden ? (
                     "••••••••"
                   ) : (
-                    <>${Math.floor(totalBalance).toLocaleString()}<span className="text-muted-foreground">.{(totalBalance % 1).toFixed(2).substring(2)}</span></>
+                    <span className="flex flex-wrap items-baseline">
+                      ${Math.floor(totalBalance).toLocaleString()}
+                      <span className="text-muted-foreground text-2xl md:text-4xl">.{(totalBalance % 1).toFixed(2).substring(2)}</span>
+                    </span>
                   )}
                 </div>
                 <div className="flex items-center gap-2 mt-2">
@@ -183,7 +186,7 @@ const DashboardPage = () => {
               </ResponsiveContainer>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 md:gap-3 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-3 mt-6">
               <button
                 onClick={() => toast.info("Deposit flow initiated. Please select an asset to see your unique wallet address.")}
                 className="flex items-center justify-center gap-2 rounded-xl bg-muted/50 hover:bg-primary/15 hover:text-primary border border-border/50 hover:border-primary/40 px-3 py-3 text-sm font-medium transition-all duration-300 active:scale-95"

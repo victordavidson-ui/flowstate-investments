@@ -107,7 +107,7 @@
     scroll-behavior: smooth;
   }
 
-  body {
+  html, body, #root {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "cv11", "ss01", "ss03";
     background-color: hsl(var(--background));
@@ -116,6 +116,10 @@
       radial-gradient(ellipse 80% 50% at 80% 20%, hsl(186 100% 25% / 0.25), transparent 50%),
       radial-gradient(ellipse 60% 60% at 20% 80%, hsl(230 100% 15% / 0.3), transparent 50%);
     background-attachment: fixed;
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+    max-width: 100vw;
   }
 
   /* Selection */

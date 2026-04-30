@@ -104,19 +104,27 @@ export const MarketsLandingPage = make({
 export const AboutPage = make({
   eyebrow: "Company",
   title: "Smart investing for everyone",
-  subtitle: "We're building the most trusted investment platform of the next decade.",
+  subtitle: "We're building the most trusted investment platform of the next decade, combining advanced AI with institutional-grade security.",
   sections: [
     {
-      heading: "Our mission",
-      body: "Financial markets shouldn't be reserved for the few. NETFLOW exists to give everyone — from first-time investors to seasoned pros — the tools, data, and confidence to build wealth.",
+      heading: "Our Mission",
+      body: "Financial markets shouldn't be reserved for the few. NETFLOW exists to give everyone — from first-time investors to seasoned pros — the tools, data, and confidence to build wealth in the digital age. We're democratizing access to complex financial instruments through simple, elegant technology.",
     },
     {
-      heading: "Backed by the best",
-      body: "Funded by Sequoia, a16z, and Coinbase Ventures. Headquartered in Singapore with offices in NYC, London, and Dubai.",
+      heading: "Our Story",
+      body: "Founded in 2021 by a team of engineers from Goldman Sachs and Stripe, NETFLOW was born out of frustration with the fragmented nature of modern investing. We saw a world where you needed five different apps to manage your portfolio. We built NETFLOW to be the only one you'll ever need.",
     },
     {
-      heading: "Regulated globally",
-      body: "Licensed in 40+ jurisdictions. SOC 2 Type II certified. ISO 27001 compliant.",
+      heading: "Institutional-Grade Infrastructure",
+      body: "We don't just build apps; we build infrastructure. Our proprietary matching engine handles millions of orders per second with microsecond latency, while our multi-signature cold storage vault ensures your assets are protected by the same security protocols used by central banks.",
+    },
+    {
+      heading: "Backed by the Best",
+      body: "Funded by Sequoia, a16z, and Coinbase Ventures. Headquartered in Singapore with offices in NYC, London, and Dubai. We are supported by a global network of institutional liquidity providers and security auditors.",
+    },
+    {
+      heading: "Regulated Globally",
+      body: "Licensed in 40+ jurisdictions. SOC 2 Type II certified. ISO 27001 compliant. We work closely with regulators to ensure that the future of finance is built on a foundation of compliance and trust.",
     },
   ],
 });
@@ -124,19 +132,38 @@ export const AboutPage = make({
 export const CareersPage = make({
   eyebrow: "Company",
   title: "Build the future of finance",
-  subtitle: "Join 400+ engineers, designers, and operators rewriting how the world invests.",
+  subtitle: "Join 400+ engineers, designers, and operators rewriting how the world invests. We're building the infrastructure for the next billion investors.",
   sections: [
     {
-      heading: "Open roles",
-      body: "We're hiring across engineering, product, design, compliance, and growth. Remote-first with hubs in Singapore, NYC, and London.",
-      bullets: ["Senior Frontend Engineer", "ML Research Lead", "Compliance Counsel (US)", "Product Designer"],
+      heading: "Our Culture",
+      body: "At NETFLOW, we value radical transparency, extreme ownership, and a bias for action. We're a remote-first company with physical hubs for those who love the office energy. We believe in high-trust, low-bureaucracy environments where the best ideas win.",
     },
     {
-      heading: "Why NETFLOW",
-      body: "Top 1% comp, generous equity, unlimited PTO, $5K annual learning stipend, and the chance to ship products used by millions.",
+      heading: "Open Roles",
+      body: "We're currently hiring across all departments. If you're passionate about decentralized finance, fintech, and creating world-class user experiences, we want to hear from you.",
+      bullets: [
+        "Senior Frontend Engineer (React/Tailwind) - Remote",
+        "Lead Product Designer (Fintech Experience) - NYC/Remote",
+        "Backend Infrastructure Engineer (Go/Rust) - London/Remote",
+        "Head of Regulatory Compliance - Singapore",
+        "Quantitative Research Lead - Dubai/Remote",
+        "Customer Success Lead (24/7 Ops) - Remote"
+      ],
+    },
+    {
+      heading: "Perks & Benefits",
+      body: "We offer top-tier compensation and a comprehensive benefits package designed to help you do your best work and live your best life.",
+      bullets: [
+        "Top 1% salary + performance bonuses",
+        "Generous equity packages with early exercise",
+        "Unlimited PTO (minimum 3 weeks mandated)",
+        "Home office stipend ($2,500 initial)",
+        "Annual learning & development budget ($5,000)",
+        "Health, dental, and vision for you and family"
+      ],
     },
   ],
-  cta: { label: "See all openings", href: "#" },
+  cta: { label: "View all openings", href: "#" },
 });
 
 export const PressPage = make({
@@ -204,19 +231,47 @@ export const SecurityPage = make({
 export const HelpCenterPage = make({
   eyebrow: "Resources",
   title: "Help Center",
-  subtitle: "Find answers, guides, and walkthroughs for every NETFLOW feature.",
+  subtitle: "Find answers, guides, and walkthroughs for every NETFLOW feature. Our support team is available 24/7 to assist you.",
   sections: [
     {
-      heading: "Getting started",
-      body: "Open an account, complete KYC, fund your wallet, and place your first trade in under 10 minutes.",
+      heading: "Getting Started",
+      body: "New to NETFLOW? Learn how to set up your account and start your investment journey in minutes.",
+      bullets: [
+        "How to create and verify your account",
+        "Funding your wallet: Crypto & Bank transfers",
+        "Connecting your first bank account via Plaid",
+        "Security best practices: Enabling 2FA"
+      ],
     },
     {
-      heading: "Trading basics",
-      body: "Learn order types, fees, settlement, and how to read a candlestick chart.",
+      heading: "Trading & Investing",
+      body: "Understand how our markets work, from spot trading to automated investment plans.",
+      bullets: [
+        "Placing your first trade (Market vs. Limit)",
+        "Setting up Auto-Invest recurring buys",
+        "Understanding copy trading and risk scores",
+        "Reading the order book and depth charts"
+      ],
     },
     {
-      heading: "Account & security",
-      body: "Reset 2FA, change your email, and manage withdrawal allow-lists.",
+      heading: "Wallet & Transfers",
+      body: "Manage your assets across multiple chains and traditional banking systems.",
+      bullets: [
+        "Withdrawal limits and processing times",
+        "Supported networks and asset recovery",
+        "Staking and earning rewards on your idle assets",
+        "Exporting transaction history for tax reporting"
+      ],
+    },
+    {
+      heading: "Account Security",
+      body: "Learn how we protect your assets and what you can do to stay secure.",
+      bullets: [
+        "Resetting your password or 2FA",
+        "Managing trusted devices and sessions",
+        "Reporting suspicious activity",
+        "Understanding our insurance coverage"
+      ],
     },
   ],
 });
@@ -303,25 +358,68 @@ export const TaxCenterPage = make({
 export const TermsPage = make({
   eyebrow: "Legal",
   title: "Terms of Service",
-  subtitle: "The agreement between you and NETFLOW for using our platform.",
+  subtitle: "Last updated: May 1, 2026. This comprehensive agreement governs your use of the NETFLOW ecosystem.",
   sections: [
     {
-      heading: "1. Acceptance of Terms",
-      body: "By creating an account or using any part of the NETFLOW platform, you agree to be bound by these Terms of Service. These terms constitute a legally binding agreement between you and NETFLOW Technologies.",
+      heading: "1. Agreement to Terms",
+      body: "By accessing or using NETFLOW (the 'Platform'), you agree to be bound by these Terms of Service and all applicable laws and regulations. These terms constitute a legally binding agreement between you ('User', 'you', or 'your') and NETFLOW Technologies Ltd. ('NETFLOW', 'we', 'us', or 'our'). If you do not agree with any of these terms, you are prohibited from using or accessing this site.",
     },
     {
-      heading: "2. Eligibility & Verification",
-      body: "You must be 18+ and reside in a supported jurisdiction. We are required by law to perform Know Your Customer (KYC) and Anti-Money Laundering (AML) checks. Access to features is restricted until verification is complete.",
-      bullets: ["ID verification required", "Proof of address may be requested", "Sanctions screening applied"],
+      heading: "2. License & Access",
+      body: "NETFLOW grants you a limited, non-exclusive, non-transferable license to access and use the Platform for your personal, non-commercial purposes. This license is subject to your compliance with these Terms.",
+      bullets: [
+        "You may not modify or copy the Platform materials",
+        "No automated data collection or 'scraping' is permitted",
+        "No reverse engineering of the Platform's source code",
+        "No removal of any copyright or proprietary notations"
+      ],
     },
     {
-      heading: "3. Account Security",
-      body: "You are solely responsible for maintaining the confidentiality of your account credentials. We highly recommend enabling Two-Factor Authentication (2FA).",
-      bullets: ["No password sharing", "Report unauthorized access immediately", "Use a strong, unique password"],
+      heading: "3. User Representation & Warranties",
+      body: "By using our services, you represent and warrant that you are of legal age to form a binding contract, you have not been previously suspended or removed from our services, and your use of the Platform will not violate any applicable laws or regulations.",
     },
     {
-      heading: "4. Trading & Risks",
-      body: "Investing in digital assets and securities involves substantial risk. You acknowledge that you have read our Risk Disclosures and are trading at your own risk.",
+      heading: "4. Digital Asset Risks",
+      body: "The risk of loss in trading or holding digital assets can be substantial. You should therefore carefully consider whether trading or holding digital assets is suitable for you in light of your financial condition. Digital assets are not legal tender and are not backed by any government.",
+      bullets: [
+        "Market volatility is extremely high and unpredictable",
+        "Cybersecurity risks: Hacking, phishing, and malware",
+        "Regulatory risks: Changes in law may affect asset value",
+        "Operational risks: Technical failures or exchange outages"
+      ],
+    },
+    {
+      heading: "5. Account Security & Verification",
+      body: "You are responsible for maintaining the security of your account credentials. NETFLOW is not responsible for any loss or damage resulting from your failure to protect your account.",
+      bullets: [
+        "Mandatory 2FA (Two-Factor Authentication) for all withdrawals",
+        "Verification of identity (KYC) is required for full feature access",
+        "We monitor for suspicious activity and may freeze accounts pending review"
+      ],
+    },
+    {
+      heading: "6. Prohibited Use Cases",
+      body: "You may not use NETFLOW for any activity that is illegal, fraudulent, or harmful. This includes, but is not limited to, market manipulation, wash trading, or using the Platform to facilitate the purchase of illegal goods or services.",
+    },
+    {
+      heading: "7. Fees, Payments & Taxes",
+      body: "All fees are clearly disclosed in our Fee Schedule. By using the Platform, you agree to pay all applicable fees. You are solely responsible for determining what, if any, taxes apply to your transactions and for reporting and remitting the correct tax to the appropriate tax authority.",
+    },
+    {
+      heading: "8. Limitation of Liability",
+      body: "In no event shall NETFLOW or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on the Platform.",
+    },
+    {
+      heading: "9. Indemnification",
+      body: "You agree to indemnify, defend, and hold harmless NETFLOW and its affiliates from and against any claims, damages, costs, liabilities, and expenses arising out of or related to your use of the Platform or your violation of these Terms.",
+    },
+    {
+      heading: "10. Modifications & Updates",
+      body: "NETFLOW may revise these Terms of Service for its Platform at any time without notice. By using this Platform you are agreeing to be bound by the then current version of these Terms of Service.",
+    },
+    {
+      heading: "11. Governing Law & Dispute Resolution",
+      body: "Any claim relating to NETFLOW's Platform shall be governed by the laws of our primary jurisdiction without regard to its conflict of law provisions. Any disputes shall be resolved through binding arbitration.",
     },
   ],
 });
@@ -329,24 +427,53 @@ export const TermsPage = make({
 export const PrivacyPage = make({
   eyebrow: "Legal",
   title: "Privacy Policy",
-  subtitle: "How we collect, use, and protect your personal data.",
+  subtitle: "How we collect, use, and protect your personal data. We believe privacy is a fundamental right.",
   sections: [
     {
-      heading: "1. Data Collection",
-      body: "We collect information you provide during signup (Name, Email, DOB) and verification (ID documents). We also collect transaction data and device telemetry to ensure platform security.",
+      heading: "1. Information We Collect",
+      body: "We collect information that identifies you or can be used to identify you ('Personal Data'). This includes information you provide directly to us, such as your name, email address, date of birth, social security number (or equivalent), and government-issued identification documents.",
+      bullets: [
+        "Biometric data for liveness checks during KYC",
+        "Financial information: Bank account details and transaction history",
+        "Technical data: IP address, device ID, and browser type",
+        "Usage data: How you interact with our Platform"
+      ],
     },
     {
-      heading: "2. How We Use Your Data",
-      body: "Your data is used to verify your identity, process trades, prevent fraud, and comply with legal requirements. We never sell your personal data to third parties.",
-      bullets: ["Regulatory compliance", "Fraud prevention", "Product improvement"],
+      heading: "2. How We Use Your Information",
+      body: "We use your data to provide our services, maintain security, and comply with legal obligations. We do not sell your personal data to third parties for marketing purposes.",
+      bullets: [
+        "Verifying your identity and preventing fraud",
+        "Processing trades and managing your portfolio",
+        "Providing customer support and personalized insights",
+        "Complying with AML/KYC regulations and tax reporting"
+      ],
     },
     {
-      heading: "3. Data Security",
-      body: "We use industry-standard AES-256 encryption for data at rest and TLS for data in transit. Access is strictly controlled via internal security protocols.",
+      heading: "3. Data Sharing & Disclosure",
+      body: "We may share your information with trusted third-party service providers who assist us in operating our Platform, such as identity verification services (e.g., Plaid, Onfido) and cloud infrastructure providers (e.g., AWS).",
+      bullets: [
+        "With regulators and law enforcement when required by law",
+        "With our affiliates and subsidiaries for internal operations",
+        "In the event of a merger, acquisition, or sale of assets"
+      ],
     },
     {
-      heading: "4. Your Privacy Rights",
-      body: "Depending on your location (GDPR/CCPA), you have the right to access, delete, or port your data. Contact our Data Protection Officer for any requests.",
+      heading: "4. Data Security",
+      body: "We implement robust security measures to protect your data from unauthorized access, alteration, or destruction. This includes end-to-end encryption, multi-factor authentication, and regular security audits by independent third parties.",
+    },
+    {
+      heading: "5. Your Rights & Choices",
+      body: "Depending on your location, you may have rights under data protection laws (such as GDPR or CCPA) to access, correct, delete, or limit the use of your personal data.",
+      bullets: [
+        "Request a copy of your personal data",
+        "Opt-out of non-essential communications",
+        "Request account deletion (subject to legal retention periods)"
+      ],
+    },
+    {
+      heading: "6. Cookies & Tracking",
+      body: "We use cookies and similar technologies to enhance your experience and analyze platform performance. You can manage your cookie preferences in your browser settings.",
     },
   ],
 });
