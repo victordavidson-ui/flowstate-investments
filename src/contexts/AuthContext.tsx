@@ -1,17 +1,27 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-interface User {
+export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  username?: string;
+  username: string;
+  phone?: string;
+  dob?: string;
+  address?: string;
+  nationality?: string;
+  kycStatus: 'unverified' | 'pending' | 'verified';
   isAdmin?: boolean;
+  preferences?: {
+    language: string;
+    currency: string;
+  };
 }
 
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
   login: (userData: User) => void;
+  updateUser: (updates: Partial<User>) => void;
   logout: () => void;
   loading: boolean;
 }
@@ -24,7 +34,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check localStorage for existing session
     const storedUser = localStorage.getItem("netflow_user");
     if (storedUser) {
       try {
@@ -44,6 +53,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem("netflow_user", JSON.stringify(userData));
   };
 
+  const updateUser = (updates: Partial<User>) => {
+    setUser(prev => {
+      if (!prev) return null;
+      const newUser = { ...prev, ...updates };
+      localStorage.setItem("netflow_user", JSON.stringify(newUser));
+      return newUser;
+    });
+  };
+
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
@@ -51,7 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, loading }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, updateUser, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

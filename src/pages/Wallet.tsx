@@ -3,6 +3,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { usePortfolio } from "@/contexts/PortfolioContext";
 import { useMarketData } from "@/hooks/useMarketData";
+import { KYCGuard } from "@/components/auth/KYCGuard";
+import { useAuth } from "@/contexts/AuthContext";
 
 const WalletPage = () => {
   const [filter, setFilter] = useState("all");
@@ -30,10 +32,11 @@ const WalletPage = () => {
         name: marketAsset?.name || sym,
         balance: qty,
         value: (marketAsset?.price || 0) * qty,
-        type: "crypto"
+        type: "crypto",
+        address: state.walletAddresses[sym]
       };
     })
-  ].filter(b => b.balance > 0);
+  ].filter(b => b.balance >= 0); // Include 0 balance to show addresses
 
   const total = portfolioBalances.reduce((a, b) => a + b.value, 0);
 
@@ -71,17 +74,19 @@ const WalletPage = () => {
           </div>
           <div className="flex items-center gap-2">
             <button 
-              onClick={() => toast.info("Deposit flow initiated.")}
+              onClick={() => toast.info("Deposit flow initiated. Please select an asset below to see your unique address.")}
               className="flex items-center gap-2 rounded-xl bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 hover:shadow-glow px-4 py-2.5 text-sm font-semibold transition-all active:scale-95"
             >
               <Plus className="h-4 w-4" /> Deposit
             </button>
-            <button 
-              onClick={() => toast.info("Withdrawal flow initiated.")}
-              className="flex items-center gap-2 rounded-xl glass border border-border/60 hover:border-primary/40 px-4 py-2.5 text-sm font-semibold transition-all active:scale-95"
-            >
-              <ArrowDownToLine className="h-4 w-4" /> Withdraw
-            </button>
+            <KYCGuard action="withdraw funds">
+              <button 
+                onClick={() => toast.info("Withdrawal flow initiated.")}
+                className="flex items-center gap-2 rounded-xl glass border border-border/60 hover:border-primary/40 px-4 py-2.5 text-sm font-semibold transition-all active:scale-95"
+              >
+                <ArrowDownToLine className="h-4 w-4" /> Withdraw
+              </button>
+            </KYCGuard>
           </div>
         </div>
       </div>
@@ -93,87 +98,104 @@ const WalletPage = () => {
             {portfolioBalances.map((b) => (
               <div
                 key={b.sym}
-                className="flex items-center justify-between p-3 rounded-xl hover:bg-muted/40 transition-colors"
+                className="flex flex-col p-3 rounded-xl hover:bg-muted/40 transition-colors group"
               >
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center border border-border/50">
-                    {b.type === "fiat" ? (
-                      <span className="font-mono text-xs font-bold text-primary">$</span>
-                    ) : (
-                      <Bitcoin className="h-4 w-4 text-primary" />
-                    )}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center border border-border/50">
+                      {b.type === "fiat" ? (
+                        <span className="font-mono text-xs font-bold text-primary">$</span>
+                      ) : (
+                        <Bitcoin className="h-4 w-4 text-primary" />
+                      )}
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold">{b.sym}</div>
+                      <div className="text-xs text-muted-foreground">{b.name}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-sm font-semibold">{b.sym}</div>
-                    <div className="text-xs text-muted-foreground">{b.name}</div>
+                  <div className="text-right">
+                    <div className="text-sm font-mono font-medium">
+                      {b.balance.toLocaleString(undefined, { maximumFractionDigits: 6 })}
+                    </div>
+                    <div className="text-xs text-muted-foreground font-mono">
+                      ${b.value.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                    </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-sm font-mono font-medium">
-                    {b.balance.toLocaleString(undefined, { maximumFractionDigits: 4 })}
+                
+                {b.address && (
+                  <div className="mt-3 bg-muted/40 rounded-lg p-2.5 flex items-center justify-between gap-3 animate-fade-in group-hover:bg-muted/60 transition-colors">
+                    <div className="min-w-0">
+                      <div className="text-[10px] uppercase font-mono text-muted-foreground mb-0.5">Your {b.sym} Address</div>
+                      <div className="text-[11px] font-mono truncate text-primary/80">{b.address}</div>
+                    </div>
+                    <button 
+                      onClick={() => handleCopy(b.address!)}
+                      className="h-8 w-8 rounded-md bg-background/60 flex items-center justify-center hover:bg-primary/20 transition-colors shrink-0"
+                    >
+                      <Copy className="h-3.5 w-3.5" />
+                    </button>
                   </div>
-                  <div className="text-xs text-muted-foreground font-mono">
-                    ${b.value.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                  </div>
-                </div>
+                )}
               </div>
             ))}
           </div>
         </div>
 
         <div className="space-y-4">
-          <div className="glass rounded-3xl p-6">
-            <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary mb-4">
-              <Repeat className="h-5 w-5" />
-            </div>
-            <h3 className="font-display text-lg font-semibold mb-2">Quick Exchange</h3>
-            <p className="text-xs text-muted-foreground mb-4">
-              Swap assets instantly with a standard 13% network fee.
-            </p>
-            <div className="space-y-3">
-              <div className="flex gap-2">
-                <select 
-                  value={fromAsset} onChange={e => setFromAsset(e.target.value)}
-                  className="bg-muted/40 border border-border/60 rounded-xl px-3 py-2 text-sm focus:outline-none"
-                >
-                  <option value="USD">USD</option>
-                  <option value="BTC">BTC</option>
-                  <option value="ETH">ETH</option>
-                  <option value="SOL">SOL</option>
-                </select>
-                <input 
-                  type="number" 
-                  placeholder="Amount" 
-                  value={exchangeAmount}
-                  onChange={e => setExchangeAmount(e.target.value)}
-                  className="flex-1 bg-muted/40 border border-border/60 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-primary/60"
-                />
+          <KYCGuard action="exchange assets">
+            <div className="glass rounded-3xl p-6">
+              <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary mb-4">
+                <Repeat className="h-5 w-5" />
               </div>
-              <div className="flex justify-center">
-                <ArrowDownToLine className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div className="flex gap-2">
-                <select 
-                  value={toAsset} onChange={e => setToAsset(e.target.value)}
-                  className="bg-muted/40 border border-border/60 rounded-xl px-3 py-2 text-sm focus:outline-none"
-                >
-                  <option value="BTC">BTC</option>
-                  <option value="ETH">ETH</option>
-                  <option value="SOL">SOL</option>
-                  <option value="USD">USD</option>
-                </select>
-                <div className="flex-1 bg-muted/20 border border-border/60 rounded-xl px-4 py-2 text-sm text-muted-foreground flex items-center">
-                  Target Asset
+              <h3 className="font-display text-lg font-semibold mb-2">Quick Exchange</h3>
+              <p className="text-xs text-muted-foreground mb-4">
+                Swap assets instantly with a standard 0.13% network fee.
+              </p>
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <select 
+                    value={fromAsset} onChange={e => setFromAsset(e.target.value)}
+                    className="bg-muted/40 border border-border/60 rounded-xl px-3 py-2 text-sm focus:outline-none"
+                  >
+                    <option value="USD">USD</option>
+                    {Object.keys(state.holdings).map(h => <option key={h} value={h}>{h}</option>)}
+                  </select>
+                  <input 
+                    type="number" 
+                    placeholder="Amount" 
+                    value={exchangeAmount}
+                    onChange={e => setExchangeAmount(e.target.value)}
+                    className="flex-1 bg-muted/40 border border-border/60 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-primary/60"
+                  />
                 </div>
+                <div className="flex justify-center">
+                  <ArrowDownToLine className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div className="flex gap-2">
+                  <select 
+                    value={toAsset} onChange={e => setToAsset(e.target.value)}
+                    className="bg-muted/40 border border-border/60 rounded-xl px-3 py-2 text-sm focus:outline-none"
+                  >
+                    <option value="BTC">BTC</option>
+                    <option value="ETH">ETH</option>
+                    <option value="SOL">SOL</option>
+                    <option value="USD">USD</option>
+                  </select>
+                  <div className="flex-1 bg-muted/20 border border-border/60 rounded-xl px-4 py-2 text-sm text-muted-foreground flex items-center">
+                    Target Asset
+                  </div>
+                </div>
+                <button 
+                  onClick={handleExchange}
+                  className="w-full rounded-xl bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 hover:shadow-glow px-4 py-2.5 text-sm font-semibold transition-all active:scale-95 mt-2"
+                >
+                  Exchange Now
+                </button>
               </div>
-              <button 
-                onClick={handleExchange}
-                className="w-full rounded-xl bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 hover:shadow-glow px-4 py-2.5 text-sm font-semibold transition-all active:scale-95 mt-2"
-              >
-                Exchange Now
-              </button>
             </div>
-          </div>
+          </KYCGuard>
         </div>
       </div>
 

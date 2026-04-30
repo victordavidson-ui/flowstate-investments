@@ -51,8 +51,9 @@ const Signup = () => {
         lastName,
         email,
         username,
+        kycStatus: 'unverified',
       });
-      navigate("/kyc");
+      navigate("/dashboard");
     }, 800);
   };
   return (

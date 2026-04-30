@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -20,7 +20,9 @@ import {
   Gift,
   HelpCircle,
   Menu,
+  X,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -127,12 +129,32 @@ const MobileNavItem = ({
 export const AppLayout = () => {
   const location = useLocation();
   const [notifOpen, setNotifOpen] = useState(false);
+  const { user, logout } = useAuth();
   const pageTitle =
     navItems.find((n) => location.pathname.startsWith(n.to))?.label ?? "Dashboard";
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div className="min-h-screen bg-background relative flex flex-col">
       <div className="grid-bg-animated" />
+      
+      {user?.kycStatus === 'unverified' && (
+        <div className="relative z-50 bg-primary/10 border-b border-primary/20 py-2 px-4 animate-fade-in">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-[10px] md:text-xs font-medium text-primary">
+              <ShieldCheck className="h-3 w-3 md:h-4 md:4" />
+              <span>Complete your identity verification to unlock trading and withdrawals.</span>
+            </div>
+            <NavLink 
+              to="/settings" 
+              className="text-[10px] md:text-xs font-bold uppercase tracking-wider bg-primary text-primary-foreground px-3 py-1 rounded-full hover:shadow-glow transition-all"
+            >
+              Verify Now
+            </NavLink>
+          </div>
+        </div>
+      )}
+
+      <div className="flex-1 flex overflow-hidden">
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex fixed inset-y-0 left-0 w-64 flex-col glass-strong border-r border-border/40 z-40">
         <div className="p-6">
@@ -167,7 +189,10 @@ export const AppLayout = () => {
               <NavLink to="/kyc">Start KYC</NavLink>
             </Button>
           </div>
-          <button className="flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-all">
+          <button 
+            onClick={logout}
+            className="flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-all"
+          >
             <LogOut className="h-4 w-4" />
             Sign out
           </button>
@@ -249,8 +274,8 @@ export const AppLayout = () => {
           </div>
         </header>
 
-        <main className="p-4 md:p-8 pb-28 lg:pb-8">
-          <div key={location.pathname} className="animate-fade-in-up">
+        <main className="flex-1 p-4 md:p-8 pb-28 lg:pb-8 overflow-y-auto overflow-x-hidden">
+          <div key={location.pathname} className="animate-fade-in-up max-w-full">
             <Outlet />
           </div>
         </main>
@@ -265,21 +290,29 @@ export const AppLayout = () => {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="glass-strong border-border/40 mb-2 w-48">
-            <DropdownMenuItem className="gap-3 py-3 cursor-pointer">
-              <Plus className="h-4 w-4 text-primary" />
-              <span>Deposit</span>
+            <DropdownMenuItem className="gap-3 py-3 cursor-pointer" asChild>
+              <NavLink to="/wallet">
+                <Plus className="h-4 w-4 text-primary" />
+                <span>Deposit</span>
+              </NavLink>
             </DropdownMenuItem>
-            <DropdownMenuItem className="gap-3 py-3 cursor-pointer">
-              <ArrowDownToLine className="h-4 w-4 text-primary" />
-              <span>Withdraw</span>
+            <DropdownMenuItem className="gap-3 py-3 cursor-pointer" asChild>
+              <NavLink to="/wallet">
+                <ArrowDownToLine className="h-4 w-4 text-primary" />
+                <span>Withdraw</span>
+              </NavLink>
             </DropdownMenuItem>
-            <DropdownMenuItem className="gap-3 py-3 cursor-pointer">
-              <Repeat className="h-4 w-4 text-primary" />
-              <span>Trade</span>
+            <DropdownMenuItem className="gap-3 py-3 cursor-pointer" asChild>
+              <NavLink to="/trade">
+                <Repeat className="h-4 w-4 text-primary" />
+                <span>Trade</span>
+              </NavLink>
             </DropdownMenuItem>
-            <DropdownMenuItem className="gap-3 py-3 cursor-pointer">
-              <TrendingUp className="h-4 w-4 text-primary" />
-              <span>Earn</span>
+            <DropdownMenuItem className="gap-3 py-3 cursor-pointer" asChild>
+              <NavLink to="/earn">
+                <TrendingUp className="h-4 w-4 text-primary" />
+                <span>Earn</span>
+              </NavLink>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

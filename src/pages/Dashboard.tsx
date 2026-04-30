@@ -11,9 +11,15 @@ import {
   TrendingUp,
   Clock,
   PieChart as PieChartIcon,
+  ShieldCheck,
+  ChevronRight,
+  ShieldAlert,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { KYCGuard } from "@/components/auth/KYCGuard";
+import { Link } from "react-router-dom";
 
 const chartData = Array.from({ length: 40 }, (_, i) => ({
   d: i,
@@ -30,6 +36,7 @@ const DashboardPage = () => {
 
   const { assets: marketAssets } = useMarketData();
   const { state, toggleDemo } = usePortfolio();
+  const { user } = useAuth();
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -69,7 +76,7 @@ const DashboardPage = () => {
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
           <h2 className="text-2xl font-display font-semibold">
-            {greeting}, Victor <span className="inline-block animate-bounce ml-1">👋</span>
+            {greeting}, {user?.firstName || "Investor"} <span className="inline-block animate-bounce ml-1">👋</span>
           </h2>
           <button 
             onClick={toggleDemo}
@@ -77,6 +84,14 @@ const DashboardPage = () => {
           >
             {state.isDemo ? "Demo Account" : "Real Account"}
           </button>
+          {user?.isAdmin && (
+            <Link 
+              to="/admin/dashboard" 
+              className="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-secondary/10 text-secondary border border-secondary/30 hover:bg-secondary/20 transition-all"
+            >
+              Admin Portal
+            </Link>
+          )}
         </div>
         <div className="text-sm text-muted-foreground flex items-center gap-2">
           <Clock className="h-4 w-4" /> Market opens in 4h 12m
@@ -169,20 +184,31 @@ const DashboardPage = () => {
             </div>
 
             <div className="grid grid-cols-3 gap-2 md:gap-3 mt-6">
-              {[
-                { icon: Plus, label: "Deposit", msg: "Deposit flow initiated." },
-                { icon: ArrowDownToLine, label: "Withdraw", msg: "Withdrawal flow initiated." },
-                { icon: Repeat, label: "Trade", msg: "Trading flow initiated." },
-              ].map((a) => (
+              <button
+                onClick={() => toast.info("Deposit flow initiated. Please select an asset to see your unique wallet address.")}
+                className="flex items-center justify-center gap-2 rounded-xl bg-muted/50 hover:bg-primary/15 hover:text-primary border border-border/50 hover:border-primary/40 px-3 py-3 text-sm font-medium transition-all duration-300 active:scale-95"
+              >
+                <Plus className="h-4 w-4" />
+                Deposit
+              </button>
+              <KYCGuard action="withdraw funds">
                 <button
-                  key={a.label}
-                  onClick={() => toast.info(a.msg)}
+                  onClick={() => toast.info("Withdrawal flow initiated.")}
                   className="flex items-center justify-center gap-2 rounded-xl bg-muted/50 hover:bg-primary/15 hover:text-primary border border-border/50 hover:border-primary/40 px-3 py-3 text-sm font-medium transition-all duration-300 active:scale-95"
                 >
-                  <a.icon className="h-4 w-4" />
-                  {a.label}
+                  <ArrowDownToLine className="h-4 w-4" />
+                  Withdraw
                 </button>
-              ))}
+              </KYCGuard>
+              <KYCGuard action="trade assets">
+                <button
+                  onClick={() => toast.info("Trading flow initiated.")}
+                  className="flex items-center justify-center gap-2 rounded-xl bg-muted/50 hover:bg-primary/15 hover:text-primary border border-border/50 hover:border-primary/40 px-3 py-3 text-sm font-medium transition-all duration-300 active:scale-95"
+                >
+                  <Repeat className="h-4 w-4" />
+                  Trade
+                </button>
+              </KYCGuard>
             </div>
           </div>
         </div>
@@ -258,6 +284,40 @@ const DashboardPage = () => {
               ))}
             </div>
           </div>
+            </div>
+          </div>
+          
+          {user?.kycStatus !== 'verified' && (
+            <div className="glass rounded-3xl p-6 border border-primary/20 relative overflow-hidden group hover:border-primary/40 transition-all">
+              <div className="absolute top-0 right-0 p-4">
+                <ShieldAlert className={`h-5 w-5 ${user?.kycStatus === 'pending' ? 'text-warning' : 'text-primary'} animate-pulse`} />
+              </div>
+              <h3 className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-4">
+                Verification
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <div className="text-sm font-bold mb-1">
+                    {user?.kycStatus === 'pending' ? 'Reviewing Documents' : 'Complete Verification'}
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {user?.kycStatus === 'pending' 
+                      ? 'Our team is verifying your identity. This usually takes 24h.' 
+                      : 'Unlock trading, withdrawals, and higher limits by verifying your identity.'}
+                  </p>
+                </div>
+                {user?.kycStatus === 'unverified' && (
+                  <Link 
+                    to="/settings" 
+                    className="flex items-center justify-between w-full p-3 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-all group/btn"
+                  >
+                    <span className="text-xs font-bold uppercase tracking-wider">Start Now</span>
+                    <ChevronRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

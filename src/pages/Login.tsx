@@ -34,10 +34,12 @@ const Login = () => {
     setTimeout(() => {
       setLoading(false);
       login({
-        firstName: "Victor", // Mock user data
+        firstName: "Victor", 
         lastName: "Davidson",
         email: identifier.includes("@") ? identifier : `${identifier}@example.com`,
         username: identifier.includes("@") ? identifier.split("@")[0] : identifier,
+        kycStatus: 'verified', // Letting the user (Victor) be verified by default
+        isAdmin: true,
       });
       // Redirect to the page they tried to visit, or dashboard
       const from = location.state?.from?.pathname || "/dashboard";

@@ -4,6 +4,7 @@ import { Bitcoin, TrendingUp, TrendingDown, Star, Zap, History } from "lucide-re
 import { usePortfolio } from "@/contexts/PortfolioContext";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import { KYCGuard } from "@/components/auth/KYCGuard";
 
 // Mock OHLC candles
 type Candle = { t: number; o: number; h: number; l: number; c: number; v: number };
@@ -81,136 +82,140 @@ const TradePage = () => {
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-4 md:gap-6 animate-fade-in">
-      {/* Chart + order book column */}
-      <div className="space-y-4 md:space-y-6 min-w-0">
-        {/* Pair header */}
-        <div className="glass rounded-3xl p-4 md:p-6">
-          <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
-            <div className="flex items-center gap-3">
-              <div className="h-11 w-11 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center border border-border/60">
-                <Bitcoin className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <div className="font-display text-lg font-bold flex items-center gap-2">
-                  BTC/USDT
-                  <Star className="h-4 w-4 text-warning fill-warning" />
+      <KYCGuard action="trade assets">
+        <div className="space-y-4 md:space-y-6 min-w-0">
+          {/* Pair header */}
+          <div className="glass rounded-3xl p-4 md:p-6">
+            <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
+              <div className="flex items-center gap-3">
+                <div className="h-11 w-11 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center border border-border/60">
+                  <Bitcoin className="h-5 w-5 text-primary" />
                 </div>
-                <div className="text-xs text-muted-foreground">Bitcoin · Spot</div>
+                <div>
+                  <div className="font-display text-lg font-bold flex items-center gap-2">
+                    BTC/USDT
+                    <Star className="h-4 w-4 text-warning fill-warning" />
+                  </div>
+                  <div className="text-xs text-muted-foreground">Bitcoin · Spot</div>
+                </div>
+              </div>
+              
+              <Link 
+                to="/history"
+                className="ml-auto hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border/50 text-xs font-mono text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors"
+              >
+                <History className="h-4 w-4" /> Trade History
+              </Link>
+              <div className="grid grid-cols-2 md:flex md:items-center md:gap-8 gap-3">
+                <div>
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                    Last price
+                  </div>
+                  <div className={`font-mono text-lg font-semibold ${change >= 0 ? "text-success" : "text-destructive"}`}>
+                    ${last.c.toFixed(2)}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                    24h change
+                  </div>
+                  <div className={`font-mono text-sm flex items-center gap-1 ${change >= 0 ? "text-success" : "text-destructive"}`}>
+                    {change >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                    {change.toFixed(2)}%
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                    24h high
+                  </div>
+                  <div className="font-mono text-sm">${Math.max(...candles.map((c) => c.h)).toFixed(2)}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                    24h low
+                  </div>
+                  <div className="font-mono text-sm">${Math.min(...candles.map((c) => c.l)).toFixed(2)}</div>
+                </div>
               </div>
             </div>
-            
-            <Link 
-              to="/history"
-              className="ml-auto hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border/50 text-xs font-mono text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors"
-            >
-              <History className="h-4 w-4" /> Trade History
-            </Link>
-            <div className="grid grid-cols-2 md:flex md:items-center md:gap-8 gap-3">
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                  Last price
-                </div>
-                <div className={`font-mono text-lg font-semibold ${change >= 0 ? "text-success" : "text-destructive"}`}>
-                  ${last.c.toFixed(2)}
-                </div>
+          </div>
+
+          {/* Candlestick chart */}
+          <div className="glass rounded-3xl p-4 md:p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-1 glass rounded-lg p-1">
+                {["1H", "4H", "1D", "1W", "1M"].map((tf, i) => (
+                  <button
+                    key={tf}
+                    className={`px-3 py-1 rounded-md text-xs font-mono transition-all ${
+                      i === 2
+                        ? "bg-primary/15 text-primary"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {tf}
+                  </button>
+                ))}
               </div>
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                  24h change
-                </div>
-                <div className={`font-mono text-sm flex items-center gap-1 ${change >= 0 ? "text-success" : "text-destructive"}`}>
-                  {change >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                  {change.toFixed(2)}%
-                </div>
-              </div>
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                  24h high
-                </div>
-                <div className="font-mono text-sm">${Math.max(...candles.map((c) => c.h)).toFixed(2)}</div>
-              </div>
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                  24h low
-                </div>
-                <div className="font-mono text-sm">${Math.min(...candles.map((c) => c.l)).toFixed(2)}</div>
+              <div className="text-xs font-mono text-muted-foreground hidden md:block">
+                Candles · Volume
               </div>
             </div>
+
+            <div className="h-72 md:h-96">
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={candles} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <CartesianGrid stroke="hsl(230 25% 14%)" strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="t" hide />
+                  <YAxis
+                    domain={["dataMin - 200", "dataMax + 200"]}
+                    tick={{ fill: "hsl(220 15% 65%)", fontSize: 10, fontFamily: "JetBrains Mono" }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={60}
+                    orientation="right"
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: "hsl(230 30% 8%)",
+                      border: "1px solid hsl(230 25% 16%)",
+                      borderRadius: "12px",
+                      fontSize: "11px",
+                      fontFamily: "JetBrains Mono",
+                    }}
+                    formatter={(v: number, name: string) => [v.toFixed(2), name.toUpperCase()]}
+                    labelFormatter={() => ""}
+                  />
+                  {/* Invisible high-low bar to create candle shape */}
+                  <Bar dataKey="h" shape={(p: any) => <CandleBar {...p} />} />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="h-20 mt-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={candles}>
+                  <XAxis dataKey="t" hide />
+                  <YAxis hide />
+                  <Bar dataKey="v">
+                    {candles.map((c, i) => (
+                      <Cell key={i} fill={c.c >= c.o ? "hsl(152 80% 50% / 0.5)" : "hsl(0 85% 60% / 0.5)"} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Order book (mobile) */}
+          <div className="xl:hidden glass rounded-3xl p-4">
+            <OrderBookPanel lastPrice={last.c} />
           </div>
         </div>
+      </KYCGuard>
 
-        {/* Candlestick chart */}
-        <div className="glass rounded-3xl p-4 md:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-1 glass rounded-lg p-1">
-              {["1H", "4H", "1D", "1W", "1M"].map((tf, i) => (
-                <button
-                  key={tf}
-                  className={`px-3 py-1 rounded-md text-xs font-mono transition-all ${
-                    i === 2
-                      ? "bg-primary/15 text-primary"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {tf}
-                </button>
-              ))}
-            </div>
-            <div className="text-xs font-mono text-muted-foreground hidden md:block">
-              Candles · Volume
-            </div>
-          </div>
-
-          <div className="h-72 md:h-96">
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={candles} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                <CartesianGrid stroke="hsl(230 25% 14%)" strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="t" hide />
-                <YAxis
-                  domain={["dataMin - 200", "dataMax + 200"]}
-                  tick={{ fill: "hsl(220 15% 65%)", fontSize: 10, fontFamily: "JetBrains Mono" }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={60}
-                  orientation="right"
-                />
-                <Tooltip
-                  contentStyle={{
-                    background: "hsl(230 30% 8%)",
-                    border: "1px solid hsl(230 25% 16%)",
-                    borderRadius: "12px",
-                    fontSize: "11px",
-                    fontFamily: "JetBrains Mono",
-                  }}
-                  formatter={(v: number, name: string) => [v.toFixed(2), name.toUpperCase()]}
-                  labelFormatter={() => ""}
-                />
-                {/* Invisible high-low bar to create candle shape */}
-                <Bar dataKey="h" shape={(p: any) => <CandleBar {...p} />} />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="h-20 mt-2">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={candles}>
-                <XAxis dataKey="t" hide />
-                <YAxis hide />
-                <Bar dataKey="v">
-                  {candles.map((c, i) => (
-                    <Cell key={i} fill={c.c >= c.o ? "hsl(152 80% 50% / 0.5)" : "hsl(0 85% 60% / 0.5)"} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Order book (mobile) */}
-        <div className="xl:hidden glass rounded-3xl p-4">
-          <OrderBookPanel lastPrice={last.c} />
-        </div>
-      </div>
+      {/* Right column: Order form + book */}
+      <div className="space-y-4 md:space-y-6 min-w-0">v>
 
       {/* Right column: Order form + book */}
       <div className="space-y-4 md:space-y-6 min-w-0">

@@ -306,16 +306,22 @@ export const TermsPage = make({
   subtitle: "The agreement between you and NETFLOW for using our platform.",
   sections: [
     {
-      heading: "Eligibility",
-      body: "You must be at least 18 years old and legally able to enter contracts in your jurisdiction. Some products are restricted by region.",
+      heading: "1. Acceptance of Terms",
+      body: "By creating an account or using any part of the NETFLOW platform, you agree to be bound by these Terms of Service. These terms constitute a legally binding agreement between you and NETFLOW Technologies.",
     },
     {
-      heading: "Account responsibilities",
-      body: "You are responsible for safeguarding your credentials, 2FA device, and recovery codes. NETFLOW cannot recover lost passwords without identity verification.",
+      heading: "2. Eligibility & Verification",
+      body: "You must be 18+ and reside in a supported jurisdiction. We are required by law to perform Know Your Customer (KYC) and Anti-Money Laundering (AML) checks. Access to features is restricted until verification is complete.",
+      bullets: ["ID verification required", "Proof of address may be requested", "Sanctions screening applied"],
     },
     {
-      heading: "Risk acknowledgement",
-      body: "Investing involves risk including total loss of capital. Past performance does not guarantee future results. Read our risk disclosures in full.",
+      heading: "3. Account Security",
+      body: "You are solely responsible for maintaining the confidentiality of your account credentials. We highly recommend enabling Two-Factor Authentication (2FA).",
+      bullets: ["No password sharing", "Report unauthorized access immediately", "Use a strong, unique password"],
+    },
+    {
+      heading: "4. Trading & Risks",
+      body: "Investing in digital assets and securities involves substantial risk. You acknowledge that you have read our Risk Disclosures and are trading at your own risk.",
     },
   ],
 });
@@ -326,16 +332,21 @@ export const PrivacyPage = make({
   subtitle: "How we collect, use, and protect your personal data.",
   sections: [
     {
-      heading: "What we collect",
-      body: "Identity (KYC), contact info, device data, transaction history, and usage analytics. We never sell your data.",
+      heading: "1. Data Collection",
+      body: "We collect information you provide during signup (Name, Email, DOB) and verification (ID documents). We also collect transaction data and device telemetry to ensure platform security.",
     },
     {
-      heading: "How we use it",
-      body: "To operate the platform, comply with regulations, prevent fraud, and improve the product. Marketing emails are opt-in only.",
+      heading: "2. How We Use Your Data",
+      body: "Your data is used to verify your identity, process trades, prevent fraud, and comply with legal requirements. We never sell your personal data to third parties.",
+      bullets: ["Regulatory compliance", "Fraud prevention", "Product improvement"],
     },
     {
-      heading: "Your rights",
-      body: "Access, correct, export, or delete your data anytime. GDPR and CCPA compliant. Contact privacy@netflow.example.",
+      heading: "3. Data Security",
+      body: "We use industry-standard AES-256 encryption for data at rest and TLS for data in transit. Access is strictly controlled via internal security protocols.",
+    },
+    {
+      heading: "4. Your Privacy Rights",
+      body: "Depending on your location (GDPR/CCPA), you have the right to access, delete, or port your data. Contact our Data Protection Officer for any requests.",
     },
   ],
 });

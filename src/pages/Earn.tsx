@@ -9,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarClock, Pause, Play, Plus, Repeat, Sparkles, Trash2, Edit2, TrendingUp, ShieldAlert, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
+import { KYCGuard } from "@/components/auth/KYCGuard";
 
 type Cadence = "Daily" | "Weekly" | "Monthly";
 type Plan = {
@@ -93,68 +94,70 @@ const Earn = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Create plan */}
-        <Card className="glass p-6 lg:col-span-1">
-          <div className="flex items-center gap-2 mb-5">
-            <div className="h-9 w-9 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
-              <Sparkles className="h-4 w-4 text-primary-foreground" />
+        <KYCGuard action="create investment plans">
+          <Card className="glass p-6 lg:col-span-1">
+            <div className="flex items-center gap-2 mb-5">
+              <div className="h-9 w-9 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
+                <Sparkles className="h-4 w-4 text-primary-foreground" />
+              </div>
+              <h2 className="font-display text-lg font-semibold">New plan</h2>
             </div>
-            <h2 className="font-display text-lg font-semibold">New plan</h2>
-          </div>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Asset</Label>
-              <Select value={asset} onValueChange={setAsset}>
-                <SelectTrigger className="bg-muted/40 border-border/60">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {ASSETS.map((a) => (
-                    <SelectItem key={a} value={a}>
-                      {a}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Amount (USD)</Label>
-              <Input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="bg-muted/40 border-border/60"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Cadence</Label>
-              <Tabs value={cadence} onValueChange={(v) => setCadence(v as Cadence)}>
-                <TabsList className="grid grid-cols-3 w-full bg-muted/40">
-                  <TabsTrigger value="Daily">Daily</TabsTrigger>
-                  <TabsTrigger value="Weekly">Weekly</TabsTrigger>
-                  <TabsTrigger value="Monthly">Monthly</TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
-            <Button variant="hero" className="w-full" onClick={createOrUpdate}>
-              {editingId ? <Edit2 className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-              {editingId ? "Update plan" : "Create plan"}
-            </Button>
-            {editingId && (
-              <Button variant="ghost" className="w-full" onClick={() => {
-                setEditingId(null);
-                setAmount("50");
-              }}>
-                Cancel
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Asset</Label>
+                <Select value={asset} onValueChange={setAsset}>
+                  <SelectTrigger className="bg-muted/40 border-border/60">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ASSETS.map((a) => (
+                      <SelectItem key={a} value={a}>
+                        {a}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Amount (USD)</Label>
+                <Input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  className="bg-muted/40 border-border/60"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Cadence</Label>
+                <Tabs value={cadence} onValueChange={(v) => setCadence(v as Cadence)}>
+                  <TabsList className="grid grid-cols-3 w-full bg-muted/40">
+                    <TabsTrigger value="Daily">Daily</TabsTrigger>
+                    <TabsTrigger value="Weekly">Weekly</TabsTrigger>
+                    <TabsTrigger value="Monthly">Monthly</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+              <Button variant="hero" className="w-full" onClick={createOrUpdate}>
+                {editingId ? <Edit2 className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                {editingId ? "Update plan" : "Create plan"}
               </Button>
-            )}
-            <div className="glass rounded-xl p-3 text-xs text-muted-foreground">
-              Estimated monthly contribution from active plans:{" "}
-              <span className="font-mono font-semibold text-foreground">
-                ${totalMonthly.toLocaleString()}
-              </span>
+              {editingId && (
+                <Button variant="ghost" className="w-full" onClick={() => {
+                  setEditingId(null);
+                  setAmount("50");
+                }}>
+                  Cancel
+                </Button>
+              )}
+              <div className="glass rounded-xl p-3 text-xs text-muted-foreground">
+                Estimated monthly contribution from active plans:{" "}
+                <span className="font-mono font-semibold text-foreground">
+                  ${totalMonthly.toLocaleString()}
+                </span>
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </KYCGuard>
 
         {/* Active plans */}
         <Card className="glass p-6 lg:col-span-2">

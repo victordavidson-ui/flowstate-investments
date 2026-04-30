@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useMemo } from "react";
 
 export type Transaction = {
   id: string;
@@ -33,6 +33,7 @@ export interface PortfolioState {
   plan: Plan;
   referrals: number;
   commissions: number;
+  walletAddresses: Record<string, string>;
 }
 
 interface PortfolioContextType {
@@ -47,20 +48,44 @@ interface PortfolioContextType {
 
 const PortfolioContext = createContext<PortfolioContextType | undefined>(undefined);
 
+// Helper to generate a realistic crypto address
+const generateAddress = (sym: string) => {
+  const chars = "0123456789abcdef";
+  let addr = "";
+  if (sym === "BTC") {
+    addr = "bc1q";
+    for (let i = 0; i < 38; i++) addr += chars[Math.floor(Math.random() * chars.length)];
+  } else if (sym === "ETH" || sym === "BNB" || sym === "MATIC") {
+    addr = "0x";
+    for (let i = 0; i < 40; i++) addr += chars[Math.floor(Math.random() * chars.length)];
+  } else {
+    addr = "nf_";
+    for (let i = 0; i < 32; i++) addr += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return addr;
+};
+
+const initialHoldings = {
+  "BTC": 0.842,
+  "ETH": 12.4,
+  "SOL": 210.5,
+};
+
+const defaultAddresses = Object.keys(initialHoldings).reduce((acc, sym) => {
+  acc[sym] = generateAddress(sym);
+  return acc;
+}, {} as Record<string, string>);
+
 const defaultState: PortfolioState = {
   isDemo: false,
   balanceUSD: 12480.50,
-  holdings: {
-    "BTC": 0.842,
-    "ETH": 12.4,
-    "AAPL": 84,
-    "SOL": 210.5,
-  },
+  holdings: initialHoldings,
   transactions: [],
   trades: [],
   plan: "None",
   referrals: 0,
   commissions: 0,
+  walletAddresses: defaultAddresses,
 };
 
 const demoState: PortfolioState = {
@@ -75,6 +100,7 @@ const demoState: PortfolioState = {
   plan: "None",
   referrals: 0,
   commissions: 0,
+  walletAddresses: {}, // Demo addresses generated on the fly if needed
 };
 
 export const PortfolioProvider = ({ children }: { children: React.ReactNode }) => {
@@ -99,14 +125,6 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     }
   }, []);
 
-  const updateAdminFees = (feeUsd: number) => {
-    setAdminStats(prev => {
-      const next = { ...prev, totalFeesCollected: prev.totalFeesCollected + feeUsd };
-      localStorage.setItem("netflow_admin", JSON.stringify(next));
-      return next;
-    });
-  };
-
   const toggleDemo = () => {
     setState(prev => prev.isDemo ? defaultState : demoState);
   };
@@ -129,50 +147,44 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   };
 
   const exchange = (fromAsset: string, toAsset: string, amount: number, rate: number) => {
-    const feePercent = 0.13;
+    const feePercent = 0.0013; // 0.13%
     
     setState(prev => {
       let newBalanceUSD = prev.balanceUSD;
       const newHoldings = { ...prev.holdings };
+      const newAddresses = { ...prev.walletAddresses };
       
-      let valueUsd = 0;
       let amountReceived = 0;
-      let feeAmountUsd = 0;
 
       // Deduct source
       if (fromAsset === "USD") {
         if (newBalanceUSD < amount) throw new Error("Insufficient funds");
         newBalanceUSD -= amount;
-        valueUsd = amount;
-        
         const fee = amount * feePercent;
-        feeAmountUsd = fee;
         const amountAfterFee = amount - fee;
         amountReceived = amountAfterFee / rate;
       } else {
         if ((newHoldings[fromAsset] || 0) < amount) throw new Error("Insufficient funds");
         newHoldings[fromAsset] -= amount;
-        valueUsd = amount * rate; // assuming rate is toAsset/fromAsset, wait.
-        // Simplified: let's assume rate is the USD price of fromAsset for now.
-        // If fromAsset is Crypto and toAsset is Crypto, we need their prices. Let's assume the function gets rate as conversion multiplier.
-        // Actually, to make it simple: amount * rate gives us the gross destination amount.
         const grossDest = amount * rate;
-        const fee = grossDest * feePercent; // Fee taken in destination asset
+        const fee = grossDest * feePercent; 
         amountReceived = grossDest - fee;
-        // feeAmountUsd = fee * destUsdPrice... we'll just approximate it or have the caller pass it.
       }
 
       if (toAsset === "USD") {
         newBalanceUSD += amountReceived;
       } else {
         newHoldings[toAsset] = (newHoldings[toAsset] || 0) + amountReceived;
+        if (!newAddresses[toAsset]) {
+          newAddresses[toAsset] = generateAddress(toAsset);
+        }
       }
 
       const tx: Transaction = {
         id: Math.random().toString(36).substring(7),
         type: "Exchange",
         asset: toAsset,
-        amount: `+${amountReceived.toFixed(4)} ${toAsset}`,
+        amount: `+${amountReceived.toFixed(6)} ${toAsset}`,
         value: `From ${amount} ${fromAsset}`,
         date: new Date().toISOString(),
         up: true,
@@ -182,6 +194,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
         ...prev,
         balanceUSD: newBalanceUSD,
         holdings: newHoldings,
+        walletAddresses: newAddresses,
         transactions: [tx, ...prev.transactions]
       };
     });
@@ -194,7 +207,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
         id: Math.random().toString(36).substring(7),
         date: new Date().toISOString()
       };
-      // Simple mock deduction
+      
       let newBalance = prev.balanceUSD;
       if (trade.side === "Buy") {
         newBalance -= parseFloat(trade.total);
