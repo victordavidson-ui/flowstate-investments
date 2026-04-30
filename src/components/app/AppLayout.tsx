@@ -345,6 +345,7 @@ export const AppLayout = () => {
       </div>
 
       <NotificationsPanel open={notifOpen} onOpenChange={setNotifOpen} />
+      </div>
     </div>
   );
 };
