@@ -15,6 +15,8 @@ export interface User {
     language: string;
     currency: string;
   };
+  is2FAEnabled?: boolean;
+  twoFactorSecret?: string;
 }
 
 interface AuthContextType {

@@ -1,10 +1,12 @@
-import { ArrowDownToLine, Bitcoin, Copy, Plus, QrCode, Wallet as WalletIcon, CheckCircle2, Clock, XCircle, ChevronDown, Filter, Repeat } from "lucide-react";
+import { ArrowDownToLine, Bitcoin, Copy, Plus, QrCode, Wallet as WalletIcon, CheckCircle2, Clock, XCircle, ChevronDown, Filter, Repeat, X, Loader2, ArrowUpRight } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { usePortfolio } from "@/contexts/PortfolioContext";
 import { useMarketData } from "@/hooks/useMarketData";
 import { KYCGuard } from "@/components/auth/KYCGuard";
 import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const WalletPage = () => {
   const [filter, setFilter] = useState("all");
@@ -14,6 +16,13 @@ const WalletPage = () => {
   const [fromAsset, setFromAsset] = useState("USD");
   const [toAsset, setToAsset] = useState("BTC");
   const [exchangeAmount, setExchangeAmount] = useState("");
+  
+  // Modals
+  const [showDeposit, setShowDeposit] = useState(false);
+  const [showWithdraw, setShowWithdraw] = useState(false);
+  const [selectedDepositAsset, setSelectedDepositAsset] = useState<string | null>(null);
+  const [withdrawData, setWithdrawData] = useState({ asset: "BTC", amount: "", address: "" });
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const { state, deposit, exchange, adminStats } = usePortfolio();
   const { assets: marketAssets } = useMarketData();
@@ -74,15 +83,15 @@ const WalletPage = () => {
           </div>
           <div className="flex items-center gap-2">
             <button 
-              onClick={() => toast.info("Deposit flow initiated. Please select an asset below to see your unique address.")}
-              className="flex items-center gap-2 rounded-xl bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 hover:shadow-glow px-4 py-2.5 text-sm font-semibold transition-all active:scale-95"
+              onClick={() => setShowDeposit(true)}
+              className="flex items-center gap-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-glow px-6 py-2.5 text-sm font-semibold transition-all active:scale-95"
             >
               <Plus className="h-4 w-4" /> Deposit
             </button>
             <KYCGuard action="withdraw funds">
               <button 
-                onClick={() => toast.info("Withdrawal flow initiated.")}
-                className="flex items-center gap-2 rounded-xl glass border border-border/60 hover:border-primary/40 px-4 py-2.5 text-sm font-semibold transition-all active:scale-95"
+                onClick={() => setShowWithdraw(true)}
+                className="flex items-center gap-2 rounded-xl glass border border-border/60 hover:border-primary/40 px-6 py-2.5 text-sm font-semibold transition-all active:scale-95"
               >
                 <ArrowDownToLine className="h-4 w-4" /> Withdraw
               </button>
@@ -90,6 +99,129 @@ const WalletPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Deposit Modal */}
+      {showDeposit && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setShowDeposit(false)} />
+          <div className="relative glass-strong w-full max-w-md rounded-3xl p-6 md:p-8 animate-fade-in-up border border-primary/20">
+            <button onClick={() => setShowDeposit(false)} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
+              <X className="h-5 w-5" />
+            </button>
+            <h2 className="text-2xl font-bold mb-6">Deposit Assets</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2 block">Select Asset</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {marketAssets.slice(0, 4).map(a => (
+                    <button 
+                      key={a.sym}
+                      onClick={() => setSelectedDepositAsset(a.sym)}
+                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${selectedDepositAsset === a.sym ? 'bg-primary/10 border-primary shadow-glow' : 'glass border-border/40 hover:border-primary/40'}`}
+                    >
+                      <Bitcoin className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-bold">{a.sym}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {selectedDepositAsset && (
+                <div className="space-y-4 pt-4 animate-fade-in">
+                  <div className="bg-muted/40 p-6 rounded-2xl flex flex-col items-center text-center">
+                    <QrCode className="h-32 w-32 mb-4 text-primary" />
+                    <div className="w-full">
+                      <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">Your {selectedDepositAsset} Deposit Address</div>
+                      <div className="flex items-center gap-2 bg-background/60 p-2 rounded-lg border border-border/40">
+                        <code className="text-xs font-mono truncate flex-1">{state.walletAddresses[selectedDepositAsset]}</code>
+                        <button onClick={() => handleCopy(state.walletAddresses[selectedDepositAsset])} className="p-1 hover:bg-primary/20 rounded transition-colors">
+                          <Copy className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10 text-[11px] text-muted-foreground">
+                    <Clock className="h-4 w-4 text-primary shrink-0" />
+                    <span>Average arrival time: ~10 minutes (3 network confirmations required).</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Withdraw Modal */}
+      {showWithdraw && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setShowWithdraw(false)} />
+          <div className="relative glass-strong w-full max-w-md rounded-3xl p-6 md:p-8 animate-fade-in-up border border-primary/20">
+            <button onClick={() => setShowWithdraw(false)} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
+              <X className="h-5 w-5" />
+            </button>
+            <h2 className="text-2xl font-bold mb-2">Withdraw Funds</h2>
+            <p className="text-sm text-muted-foreground mb-6">Send assets to an external wallet.</p>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2 block">Asset</label>
+                <select 
+                  className="w-full bg-muted/40 border border-border/60 rounded-xl px-4 py-3 text-sm focus:outline-none"
+                  value={withdrawData.asset}
+                  onChange={e => setWithdrawData({...withdrawData, asset: e.target.value})}
+                >
+                  {Object.keys(state.holdings).map(h => (
+                    <option key={h} value={h}>{h} (Available: {state.holdings[h]})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2 block">Amount</label>
+                <div className="relative">
+                  <Input 
+                    type="number" 
+                    placeholder="0.00" 
+                    className="h-12 pr-16 bg-muted/40"
+                    value={withdrawData.amount}
+                    onChange={e => setWithdrawData({...withdrawData, amount: e.target.value})}
+                  />
+                  <button className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-primary hover:text-primary-glow">MAX</button>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2 block">Recipient Address</label>
+                <Input 
+                  placeholder="Paste destination address" 
+                  className="h-12 bg-muted/40 font-mono text-sm"
+                  value={withdrawData.address}
+                  onChange={e => setWithdrawData({...withdrawData, address: e.target.value})}
+                />
+              </div>
+
+              <div className="pt-4">
+                <Button 
+                  variant="hero" 
+                  className="w-full py-6" 
+                  onClick={() => {
+                    setIsProcessing(true);
+                    setTimeout(() => {
+                      setIsProcessing(false);
+                      setShowWithdraw(false);
+                      toast.success(`Withdrawal request for ${withdrawData.amount} ${withdrawData.asset} sent.`);
+                    }, 2000);
+                  }} 
+                  disabled={isProcessing || !withdrawData.amount || !withdrawData.address}
+                >
+                  {isProcessing ? <Loader2 className="h-5 w-5 animate-spin" /> : "Confirm Withdrawal"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         <div className="lg:col-span-2 glass rounded-3xl p-6">

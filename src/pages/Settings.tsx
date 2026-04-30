@@ -14,7 +14,11 @@ import {
   CheckCircle2,
   ChevronRight,
   Loader2,
-  Lock
+  Lock,
+  QrCode,
+  Copy,
+  Smartphone,
+  Upload
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -42,6 +46,10 @@ const SettingsPage = () => {
   const { user, updateUser } = useAuth();
   const [view, setView] = useState<View>("root");
   const [loading, setLoading] = useState(false);
+  const [setup2FA, setSetup2FA] = useState(false);
+  const [twoFactorCode, setTwoFactorCode] = useState("");
+  const [tempSecret] = useState("XJ9K-P2L4-M7Q9-R1S5"); // Simulated secret
+  const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
 
   // Form states
   const [profileData, setProfileData] = useState({
@@ -70,6 +78,35 @@ const SettingsPage = () => {
       toast.success("Verification documents submitted for review");
       setView("root");
     }, 2000);
+  };
+
+  const handleFileUpload = (type: string) => {
+    if (uploadProgress[type]) return;
+    
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.random() * 30;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        toast.success(`${type} uploaded successfully`);
+      }
+      setUploadProgress(prev => ({ ...prev, [type]: progress }));
+    }, 400);
+  };
+
+  const handleEnable2FA = () => {
+    if (twoFactorCode.length !== 6) {
+      toast.error("Please enter a valid 6-digit code");
+      return;
+    }
+    setLoading(true);
+    setTimeout(() => {
+      updateUser({ is2FAEnabled: true, twoFactorSecret: tempSecret });
+      setLoading(false);
+      setSetup2FA(false);
+      toast.success("Two-Factor Authentication enabled successfully");
+    }, 1500);
   };
 
   const renderRoot = () => (
@@ -172,10 +209,27 @@ const SettingsPage = () => {
         ) : (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <UploadCard icon={FileText} label="Government ID" desc="Passport or Driver's License" />
-              <UploadCard icon={Camera} label="Live Selfie" desc="Facial recognition check" />
+              <UploadCard 
+                icon={FileText} 
+                label="Government ID" 
+                desc="Passport or Driver's License" 
+                progress={uploadProgress['id']}
+                onClick={() => handleFileUpload('id')}
+              />
+              <UploadCard 
+                icon={Camera} 
+                label="Live Selfie" 
+                desc="Facial recognition check" 
+                progress={uploadProgress['selfie']}
+                onClick={() => handleFileUpload('selfie')}
+              />
             </div>
-            <Button variant="hero" className="w-full" onClick={handleKYCSubmit} disabled={loading}>
+            <Button 
+              variant="hero" 
+              className="w-full" 
+              onClick={handleKYCSubmit} 
+              disabled={loading || !uploadProgress['id'] || !uploadProgress['selfie']}
+            >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit for Review"}
             </Button>
           </div>
@@ -247,20 +301,71 @@ const SettingsPage = () => {
         </div>
 
         <div className="space-y-6">
-          <div className="flex items-center justify-between p-4 glass rounded-2xl border border-border/40">
+          <div className="flex items-center justify-between p-4 glass rounded-2xl border border-border/40 relative overflow-hidden group">
+            {user?.is2FAEnabled && <div className="absolute top-0 right-0 h-1 w-full bg-success shadow-glow" />}
             <div className="flex items-center gap-4">
               <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <Bell className="h-4 w-4" />
+                <Smartphone className="h-4 w-4" />
               </div>
               <div>
-                <div className="text-sm font-semibold">Two-Factor Authentication</div>
-                <div className="text-xs text-muted-foreground">Real-time codes via email or SMS</div>
+                <div className="text-sm font-semibold">Authenticator App</div>
+                <div className="text-xs text-muted-foreground">Use Google Authenticator or Authy</div>
               </div>
             </div>
-            <button className="h-6 w-11 rounded-full bg-primary relative transition-colors p-1">
-              <div className="h-4 w-4 rounded-full bg-white absolute right-1 shadow-sm" />
+            <button 
+              onClick={() => !user?.is2FAEnabled && setSetup2FA(true)}
+              className={`h-6 w-11 rounded-full relative transition-all p-1 ${user?.is2FAEnabled ? 'bg-success' : 'bg-muted-foreground/30'}`}
+            >
+              <div className={`h-4 w-4 rounded-full bg-white absolute shadow-sm transition-all ${user?.is2FAEnabled ? 'right-1' : 'left-1'}`} />
             </button>
           </div>
+
+          {setup2FA && (
+            <div className="p-6 glass rounded-2xl border border-primary/30 space-y-6 animate-fade-in-up">
+              <div className="flex items-center justify-between">
+                <h3 className="font-bold">Setup Authenticator</h3>
+                <button onClick={() => setSetup2FA(false)} className="text-muted-foreground hover:text-foreground">
+                  <ArrowLeft className="h-4 w-4" />
+                </button>
+              </div>
+              
+              <div className="flex flex-col md:flex-row gap-6 items-center">
+                <div className="h-32 w-32 bg-white p-2 rounded-xl flex items-center justify-center shadow-lg">
+                  <QrCode className="h-full w-full text-black" />
+                </div>
+                <div className="flex-1 space-y-4">
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-1">Step 1: Scan QR or enter key</div>
+                    <div className="flex items-center gap-2 bg-muted/40 p-2 rounded-lg border border-border/60">
+                      <code className="text-sm font-mono flex-1">{tempSecret}</code>
+                      <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(tempSecret);
+                          toast.success("Secret copied");
+                        }}
+                        className="p-1 hover:bg-background/40 rounded transition-colors"
+                      >
+                        <Copy className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-1">Step 2: Enter 6-digit code</div>
+                    <Input 
+                      placeholder="000000" 
+                      maxLength={6}
+                      value={twoFactorCode}
+                      onChange={e => setTwoFactorCode(e.target.value)}
+                      className="font-mono text-center tracking-[0.5em] text-lg bg-muted/40"
+                    />
+                  </div>
+                  <Button variant="hero" className="w-full" onClick={handleEnable2FA} disabled={loading}>
+                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verify & Enable"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="p-4 glass rounded-2xl border border-border/40 space-y-4">
             <div className="text-sm font-semibold mb-2">Change Password</div>
@@ -327,13 +432,24 @@ const Field = ({
   </div>
 );
 
-const UploadCard = ({ icon: Icon, label, desc }: { icon: any, label: string, desc: string }) => (
-  <div className="glass rounded-2xl border-2 border-dashed border-border/60 p-6 text-center hover:border-primary/50 transition-colors cursor-pointer group">
+const UploadCard = ({ icon: Icon, label, desc, progress, onClick }: { icon: any, label: string, desc: string, progress?: number, onClick: () => void }) => (
+  <div 
+    onClick={onClick}
+    className="glass rounded-2xl border-2 border-dashed border-border/60 p-6 text-center hover:border-primary/50 transition-colors cursor-pointer group relative overflow-hidden"
+  >
+    {progress !== undefined && progress > 0 && progress < 100 && (
+      <div className="absolute bottom-0 left-0 h-1 bg-primary transition-all duration-300" style={{ width: `${progress}%` }} />
+    )}
+    {progress === 100 && (
+      <div className="absolute top-2 right-2">
+        <CheckCircle2 className="h-4 w-4 text-success" />
+      </div>
+    )}
     <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-3 group-hover:scale-110 transition-transform">
-      <Icon className="h-5 w-5" />
+      {progress === 100 ? <CheckCircle2 className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
     </div>
     <p className="text-sm font-medium mb-1">{label}</p>
-    <p className="text-xs text-muted-foreground">{desc}</p>
+    <p className="text-xs text-muted-foreground">{progress === 100 ? "Ready to submit" : desc}</p>
   </div>
 );
 
