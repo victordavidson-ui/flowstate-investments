@@ -17,6 +17,7 @@ export const AuthShell = ({
   children: React.ReactNode;
   footer?: React.ReactNode;
 }) => {
+  return (
     <div className="min-h-screen bg-background relative flex flex-col">
       <Navbar />
       <div className="flex-1 flex items-center justify-center p-4 relative overflow-hidden pt-24">
@@ -54,6 +55,7 @@ export const AuthShell = ({
         )}
       </div>
     </div>
+  </div>
   );
 };
 

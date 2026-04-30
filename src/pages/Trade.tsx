@@ -215,9 +215,6 @@ const TradePage = () => {
       </KYCGuard>
 
       {/* Right column: Order form + book */}
-      <div className="space-y-4 md:space-y-6 min-w-0">v>
-
-      {/* Right column: Order form + book */}
       <div className="space-y-4 md:space-y-6 min-w-0">
         {/* Order form */}
         <div className="glass rounded-3xl p-5">
@@ -384,8 +381,8 @@ const TradePage = () => {
 };
 
 const OrderBookPanel = ({ lastPrice }: { lastPrice: number }) => {
-  const maxAskTotal = Math.max(...orderBook.asks.map((a) => a.total));
-  const maxBidTotal = Math.max(...orderBook.bids.map((b) => b.total));
+  const maxAskTotal = orderBook.asks.reduce((max, a) => Math.max(max, a.total), 0);
+  const maxBidTotal = orderBook.bids.reduce((max, b) => Math.max(max, b.total), 0);
   return (
     <>
       <h3 className="font-display font-semibold mb-3">Order book</h3>
