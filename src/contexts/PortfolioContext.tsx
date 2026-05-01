@@ -39,7 +39,8 @@ export interface PortfolioState {
 interface PortfolioContextType {
   state: PortfolioState;
   toggleDemo: () => void;
-  deposit: (amount: number) => void;
+  deposit: (amount: number, asset?: string) => void;
+  withdraw: (amount: number, asset: string, address: string) => void;
   exchange: (fromAsset: string, toAsset: string, amount: number, rate: number) => void;
   executeTrade: (trade: Omit<Trade, "id" | "date">) => void;
   upgradePlan: (plan: Plan, cost: number) => void;
@@ -129,21 +130,66 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     setState(prev => prev.isDemo ? defaultState : demoState);
   };
 
-  const deposit = (amount: number) => {
+  const deposit = (amount: number, asset: string = "USD") => {
     const newTx: Transaction = {
       id: Math.random().toString(36).substring(7),
       type: "Deposit",
-      asset: "USD",
-      amount: `+$${amount.toLocaleString()}`,
-      value: "Bank Transfer",
+      asset,
+      amount: `+${asset === "USD" ? "$" : ""}${amount.toLocaleString()} ${asset !== "USD" ? asset : ""}`,
+      value: asset === "USD" ? "Bank Transfer" : "Blockchain Deposit",
       date: new Date().toISOString(),
       up: true,
     };
-    setState(prev => ({
-      ...prev,
-      balanceUSD: prev.balanceUSD + amount,
-      transactions: [newTx, ...prev.transactions],
-    }));
+    
+    setState(prev => {
+      const newHoldings = { ...prev.holdings };
+      let newBalanceUSD = prev.balanceUSD;
+      
+      if (asset === "USD") {
+        newBalanceUSD += amount;
+      } else {
+        newHoldings[asset] = (newHoldings[asset] || 0) + amount;
+      }
+      
+      return {
+        ...prev,
+        balanceUSD: newBalanceUSD,
+        holdings: newHoldings,
+        transactions: [newTx, ...prev.transactions],
+      };
+    });
+  };
+  
+  const withdraw = (amount: number, asset: string, address: string) => {
+    setState(prev => {
+      let newBalanceUSD = prev.balanceUSD;
+      const newHoldings = { ...prev.holdings };
+      
+      if (asset === "USD") {
+        if (newBalanceUSD < amount) throw new Error("Insufficient balance");
+        newBalanceUSD -= amount;
+      } else {
+        if ((newHoldings[asset] || 0) < amount) throw new Error("Insufficient balance");
+        newHoldings[asset] -= amount;
+      }
+      
+      const newTx: Transaction = {
+        id: Math.random().toString(36).substring(7),
+        type: "Withdraw",
+        asset,
+        amount: `-${asset === "USD" ? "$" : ""}${amount.toLocaleString()} ${asset !== "USD" ? asset : ""}`,
+        value: `To ${address.substring(0, 8)}...`,
+        date: new Date().toISOString(),
+        up: false,
+      };
+      
+      return {
+        ...prev,
+        balanceUSD: newBalanceUSD,
+        holdings: newHoldings,
+        transactions: [newTx, ...prev.transactions],
+      };
+    });
   };
 
   const exchange = (fromAsset: string, toAsset: string, amount: number, rate: number) => {
@@ -243,7 +289,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   };
 
   return (
-    <PortfolioContext.Provider value={{ state, toggleDemo, deposit, exchange, executeTrade, upgradePlan, adminStats }}>
+    <PortfolioContext.Provider value={{ state, toggleDemo, deposit, withdraw, exchange, executeTrade, upgradePlan, adminStats }}>
       {children}
     </PortfolioContext.Provider>
   );

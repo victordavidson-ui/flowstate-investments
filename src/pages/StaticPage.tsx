@@ -17,10 +17,10 @@ export const StaticPage = ({ eyebrow, title, subtitle, sections, cta }: StaticPa
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Premium Background Elements */}
-      <div className="absolute top-0 left-0 right-0 h-[600px] bg-gradient-to-b from-primary/5 to-transparent -z-10" />
-      <div className="absolute top-[-10%] right-[-10%] h-[500px] w-[500px] bg-primary/10 rounded-full blur-[120px] -z-10 animate-glow-pulse" />
-      <div className="absolute bottom-[20%] left-[-10%] h-[400px] w-[400px] bg-secondary/5 rounded-full blur-[100px] -z-10" />
-      <div className="absolute inset-0 grid-bg opacity-30 -z-10" />
+      <div className="absolute top-0 left-0 right-0 h-[800px] bg-gradient-to-b from-primary/10 via-background to-transparent -z-10" />
+      <div className="absolute top-[-10%] right-[-10%] h-[600px] w-[600px] bg-primary/20 rounded-full blur-[120px] -z-10 animate-pulse duration-[10s]" />
+      <div className="absolute top-[20%] left-[-5%] h-[400px] w-[400px] bg-secondary/10 rounded-full blur-[100px] -z-10 animate-float" />
+      <div className="absolute inset-0 grid-bg opacity-20 -z-10" />
 
       <Navbar />
       
@@ -34,14 +34,14 @@ export const StaticPage = ({ eyebrow, title, subtitle, sections, cta }: StaticPa
           </div>
           
           <div className="container max-w-5xl mx-auto px-4 text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-mono uppercase tracking-[0.2em] mb-8 animate-fade-in">
-              <Zap className="h-3 w-3" />
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold uppercase tracking-[0.3em] mb-10 animate-fade-in shadow-[0_0_15px_hsl(var(--primary)/0.15)]">
+              <Zap className="h-3.5 w-3.5" />
               {eyebrow}
             </div>
-            <h1 className="font-display text-5xl md:text-8xl font-bold tracking-tighter mb-8 bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/40 leading-[0.9] animate-fade-in-up">
-              {title}
+            <h1 className="font-display text-6xl md:text-9xl font-black tracking-tighter mb-10 leading-[0.85] animate-fade-in-up">
+              <span className="block bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/50">{title}</span>
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '200ms' }}>
+            <p className="text-xl md:text-3xl text-muted-foreground/80 max-w-3xl mx-auto leading-relaxed animate-fade-in font-medium tracking-tight" style={{ animationDelay: '200ms' }}>
               {subtitle}
             </p>
           </div>

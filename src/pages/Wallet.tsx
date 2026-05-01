@@ -24,7 +24,7 @@ const WalletPage = () => {
   const [withdrawData, setWithdrawData] = useState({ asset: "BTC", amount: "", address: "" });
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const { state, deposit, exchange, adminStats } = usePortfolio();
+  const { state, deposit, withdraw, exchange, adminStats } = usePortfolio();
   const { assets: marketAssets } = useMarketData();
 
   const handleCopy = (text: string) => {
@@ -108,42 +108,92 @@ const WalletPage = () => {
             <button onClick={() => setShowDeposit(false)} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
               <X className="h-5 w-5" />
             </button>
-            <h2 className="text-2xl font-bold mb-6">Deposit Assets</h2>
+            <h2 className="text-2xl font-bold mb-6">Deposit Funds</h2>
             
             <div className="space-y-4">
-              <div>
-                <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2 block">Select Asset</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {marketAssets.slice(0, 4).map(a => (
-                    <button 
-                      key={a.sym}
-                      onClick={() => setSelectedDepositAsset(a.sym)}
-                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${selectedDepositAsset === a.sym ? 'bg-primary/10 border-primary shadow-glow' : 'glass border-border/40 hover:border-primary/40'}`}
-                    >
-                      <Bitcoin className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-bold">{a.sym}</span>
-                    </button>
-                  ))}
-                </div>
+              <div className="flex gap-2 p-1 bg-muted/40 rounded-xl mb-4">
+                <button 
+                  onClick={() => setSelectedDepositAsset(null)}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${!selectedDepositAsset ? 'bg-primary text-primary-foreground shadow-glow' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  Bank Transfer
+                </button>
+                <button 
+                  onClick={() => setSelectedDepositAsset("BTC")}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${selectedDepositAsset ? 'bg-primary text-primary-foreground shadow-glow' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  Crypto
+                </button>
               </div>
 
-              {selectedDepositAsset && (
-                <div className="space-y-4 pt-4 animate-fade-in">
+              {!selectedDepositAsset ? (
+                <div className="space-y-4 animate-fade-in">
+                  <div>
+                    <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2 block">Amount (USD)</label>
+                    <Input 
+                      type="number" 
+                      placeholder="Enter amount to deposit" 
+                      className="h-12 bg-muted/40"
+                      onChange={(e) => setWithdrawData({ ...withdrawData, amount: e.target.value })}
+                    />
+                  </div>
+                  <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10">
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Bank transfers via Plaid usually settle within 1-3 minutes. Min deposit: $50.00.
+                    </p>
+                  </div>
+                  <Button 
+                    variant="hero" 
+                    className="w-full py-6"
+                    disabled={isProcessing || !withdrawData.amount || +withdrawData.amount < 50}
+                    onClick={() => {
+                      setIsProcessing(true);
+                      setTimeout(() => {
+                        deposit(+withdrawData.amount);
+                        setIsProcessing(false);
+                        setShowDeposit(false);
+                        toast.success(`Successfully deposited $${withdrawData.amount} via Bank Transfer.`);
+                      }, 2000);
+                    }}
+                  >
+                    {isProcessing ? <Loader2 className="h-5 w-5 animate-spin" /> : "Initiate Transfer"}
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4 animate-fade-in">
+                  <div>
+                    <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2 block">Select Asset</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {marketAssets.slice(0, 4).map(a => (
+                        <button 
+                          key={a.sym}
+                          onClick={() => setSelectedDepositAsset(a.sym)}
+                          className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${selectedDepositAsset === a.sym ? 'bg-primary/10 border-primary shadow-glow' : 'glass border-border/40 hover:border-primary/40'}`}
+                        >
+                          <Bitcoin className="h-4 w-4 text-primary" />
+                          <span className="text-sm font-bold">{a.sym}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="bg-muted/40 p-6 rounded-2xl flex flex-col items-center text-center">
                     <QrCode className="h-32 w-32 mb-4 text-primary" />
                     <div className="w-full">
                       <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-2">Your {selectedDepositAsset} Deposit Address</div>
                       <div className="flex items-center gap-2 bg-background/60 p-2 rounded-lg border border-border/40">
-                        <code className="text-xs font-mono truncate flex-1">{state.walletAddresses[selectedDepositAsset]}</code>
-                        <button onClick={() => handleCopy(state.walletAddresses[selectedDepositAsset])} className="p-1 hover:bg-primary/20 rounded transition-colors">
+                        <code className="text-xs font-mono truncate flex-1">{state.walletAddresses[selectedDepositAsset] || generateAddress(selectedDepositAsset)}</code>
+                        <button onClick={() => handleCopy(state.walletAddresses[selectedDepositAsset] || "")} className="p-1 hover:bg-primary/20 rounded transition-colors">
                           <Copy className="h-3.5 w-3.5" />
                         </button>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10 text-[11px] text-muted-foreground">
-                    <Clock className="h-4 w-4 text-primary shrink-0" />
-                    <span>Average arrival time: ~10 minutes (3 network confirmations required).</span>
+                  
+                  <div className="p-4 rounded-2xl bg-secondary/5 border border-secondary/10">
+                    <p className="text-[10px] text-muted-foreground text-center">
+                      Funds will be credited after 3 network confirmations. You can close this window.
+                    </p>
                   </div>
                 </div>
               )}
@@ -206,12 +256,20 @@ const WalletPage = () => {
                   variant="hero" 
                   className="w-full py-6" 
                   onClick={() => {
+                    if (!withdrawData.amount || !withdrawData.address) return;
                     setIsProcessing(true);
-                    setTimeout(() => {
+                    try {
+                      setTimeout(() => {
+                        withdraw(+withdrawData.amount, withdrawData.asset, withdrawData.address);
+                        setIsProcessing(false);
+                        setShowWithdraw(false);
+                        toast.success(`Withdrawal of ${withdrawData.amount} ${withdrawData.asset} processed successfully.`);
+                        setWithdrawData({ asset: "BTC", amount: "", address: "" });
+                      }, 2000);
+                    } catch (e: any) {
                       setIsProcessing(false);
-                      setShowWithdraw(false);
-                      toast.success(`Withdrawal request for ${withdrawData.amount} ${withdrawData.asset} sent.`);
-                    }, 2000);
+                      toast.error(e.message || "Withdrawal failed");
+                    }
                   }} 
                   disabled={isProcessing || !withdrawData.amount || !withdrawData.address}
                 >

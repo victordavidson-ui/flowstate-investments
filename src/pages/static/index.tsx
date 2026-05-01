@@ -103,64 +103,85 @@ export const MarketsLandingPage = make({
 // ===== COMPANY =====
 export const AboutPage = make({
   eyebrow: "Company",
-  title: "Smart investing for everyone",
-  subtitle: "We're building the most trusted investment platform of the next decade, combining advanced AI with institutional-grade security.",
+  title: "Rewriting the rules of global finance",
+  subtitle: "NETFLOW is building the unified infrastructure for the next billion investors, combining institutional-grade security with a seamless consumer experience.",
   sections: [
     {
       heading: "Our Mission",
-      body: "Financial markets shouldn't be reserved for the few. NETFLOW exists to give everyone — from first-time investors to seasoned pros — the tools, data, and confidence to build wealth in the digital age. We're democratizing access to complex financial instruments through simple, elegant technology.",
+      body: "Financial freedom shouldn't be a privilege. Our mission is to democratize access to sophisticated investment tools that were previously only available to hedge funds and elite institutions. We believe in a world where everyone can participate in the global economy with confidence.",
     },
     {
-      heading: "Our Story",
-      body: "Founded in 2021 by a team of engineers from Goldman Sachs and Stripe, NETFLOW was born out of frustration with the fragmented nature of modern investing. We saw a world where you needed five different apps to manage your portfolio. We built NETFLOW to be the only one you'll ever need.",
+      heading: "The NETFLOW Story",
+      body: "Founded in 2021 by a group of engineers and economists from Stripe, Goldman Sachs, and NASA, NETFLOW was born out of a simple observation: the world of finance is fragmented, slow, and exclusionary. We set out to build a platform that is fast, global, and open to all.",
     },
     {
-      heading: "Institutional-Grade Infrastructure",
-      body: "We don't just build apps; we build infrastructure. Our proprietary matching engine handles millions of orders per second with microsecond latency, while our multi-signature cold storage vault ensures your assets are protected by the same security protocols used by central banks.",
+      heading: "Institutional Grade Security",
+      body: "Security is not a feature; it is our foundation. We employ multi-signature cold storage, hardware security modules (HSMs), and biometric verification to ensure that your assets are protected against even the most sophisticated threats.",
     },
     {
-      heading: "Backed by the Best",
-      body: "Funded by Sequoia, a16z, and Coinbase Ventures. Headquartered in Singapore with offices in NYC, London, and Dubai. We are supported by a global network of institutional liquidity providers and security auditors.",
+      heading: "Our Global Footprint",
+      body: "With physical offices in Singapore, London, and New York, and a remote-first team spread across 40+ countries, we are a truly global organization. We are regulated in multiple jurisdictions and work closely with local authorities to ensure compliance.",
     },
     {
-      heading: "Regulated Globally",
-      body: "Licensed in 40+ jurisdictions. SOC 2 Type II certified. ISO 27001 compliant. We work closely with regulators to ensure that the future of finance is built on a foundation of compliance and trust.",
+      heading: "Innovation First",
+      body: "We are at the forefront of financial technology. From AI-driven portfolio insights to zero-knowledge proofs for privacy-preserving verification, we are constantly pushing the boundaries of what is possible.",
+    },
+    {
+      heading: "Environmental Responsibility",
+      body: "We are committed to building a sustainable future. We offset 100% of our carbon emissions and prioritize partnerships with eco-friendly infrastructure providers.",
+    },
+    {
+      heading: "Leadership Team",
+      body: "Led by industry veterans with decades of experience in fintech, cybersecurity, and capital markets. Our board includes former regulators and technology pioneers.",
     },
   ],
 });
 
 export const CareersPage = make({
   eyebrow: "Company",
-  title: "Build the future of finance",
-  subtitle: "Join 400+ engineers, designers, and operators rewriting how the world invests. We're building the infrastructure for the next billion investors.",
+  title: "Build the future of wealth",
+  subtitle: "Join a high-performance team of over 400 innovators, designers, and engineers rewriting the financial stack from the ground up.",
   sections: [
     {
       heading: "Our Culture",
-      body: "At NETFLOW, we value radical transparency, extreme ownership, and a bias for action. We're a remote-first company with physical hubs for those who love the office energy. We believe in high-trust, low-bureaucracy environments where the best ideas win.",
+      body: "We value radical transparency, extreme ownership, and a bias for action. At NETFLOW, we don't just solve problems; we redefine them. We're a remote-first company that prioritizes deep work and meaningful collaboration over meetings.",
     },
     {
       heading: "Open Roles",
-      body: "We're currently hiring across all departments. If you're passionate about decentralized finance, fintech, and creating world-class user experiences, we want to hear from you.",
+      body: "We are actively hiring across all departments. If you are passionate about decentralized finance, high-frequency trading, or world-class UX, we want to hear from you.",
       bullets: [
-        "Senior Frontend Engineer (React/Tailwind) - Remote",
-        "Lead Product Designer (Fintech Experience) - NYC/Remote",
-        "Backend Infrastructure Engineer (Go/Rust) - London/Remote",
-        "Head of Regulatory Compliance - Singapore",
-        "Quantitative Research Lead - Dubai/Remote",
-        "Customer Success Lead (24/7 Ops) - Remote"
+        "Senior Frontend Engineer (React/Tailwind)",
+        "Staff Backend Engineer (Rust/Go)",
+        "Principal Product Designer",
+        "Head of Regulatory Compliance",
+        "Quantitative Research Lead",
+        "Customer Success Manager",
+        "Technical Recruiter"
       ],
     },
     {
-      heading: "Perks & Benefits",
-      body: "We offer top-tier compensation and a comprehensive benefits package designed to help you do your best work and live your best life.",
+      heading: "Benefits & Perks",
+      body: "We take care of our people so they can take care of our mission. Our benefits are designed to support your health, wealth, and professional growth.",
       bullets: [
-        "Top 1% salary + performance bonuses",
-        "Generous equity packages with early exercise",
+        "Top 1% market salary + performance bonuses",
+        "Generous equity package with early exercise",
         "Unlimited PTO (minimum 3 weeks mandated)",
-        "Home office stipend ($2,500 initial)",
-        "Annual learning & development budget ($5,000)",
-        "Health, dental, and vision for you and family"
+        "Premium health, dental, and vision for you and family",
+        "Home office stipend ($3,000 initial)",
+        "Annual learning & development budget ($5,000)"
       ],
+    },
+    {
+      heading: "Our Hiring Process",
+      body: "We've designed our process to be respectful of your time while ensuring a perfect fit. It usually involves a brief intro call, a technical/design deep-dive, and a 'values' round with our founders.",
+    },
+    {
+      heading: "Internships & New Grads",
+      body: "We believe in investing in the next generation of talent. Our 12-week summer internship program provides hands-on experience on mission-critical projects.",
+    },
+    {
+      heading: "Diversity & Inclusion",
+      body: "We are committed to building a diverse and inclusive workplace. We believe that different perspectives lead to better decisions and a better product.",
     },
   ],
   cta: { label: "View all openings", href: "#" },
@@ -168,61 +189,111 @@ export const CareersPage = make({
 
 export const PressPage = make({
   eyebrow: "Company",
-  title: "Press & media",
-  subtitle: "The latest news, announcements, and brand assets for journalists.",
+  title: "Media & Press Room",
+  subtitle: "Official announcements, media kits, and the latest news from the NETFLOW ecosystem.",
   sections: [
     {
-      heading: "Recent coverage",
-      body: "Featured in Bloomberg, TechCrunch, The Information, CoinDesk, and the Financial Times.",
+      heading: "Recent Headlines",
+      body: "Stay up to date with our latest milestones and industry insights.",
+      bullets: [
+        "NETFLOW raises $150M Series C led by Sequoia",
+        "Launching our institutional-grade custody solution",
+        "Expanding operations to the European market",
+        "NETFLOW reaches 10M active users milestone"
+      ],
     },
     {
-      heading: "Media kit",
-      body: "Download logos, product screenshots, and executive headshots. Available in light and dark variants.",
+      heading: "Media Kit",
+      body: "Download our official brand assets, including logos, founder headshots, and high-resolution platform screenshots.",
     },
     {
-      heading: "Press inquiries",
-      body: "For interviews, comments, or background — reach our communications team at press@netflow.example.",
+      heading: "Press Contact",
+      body: "For media inquiries, please reach out to our communications team at press@netflow.invest. We typically respond within 24 hours.",
+    },
+    {
+      heading: "Brand Guidelines",
+      body: "Our brand is our promise. Please follow our guidelines when using NETFLOW assets to ensure consistency and trust.",
+    },
+    {
+      heading: "Speaker Bureau",
+      body: "Our executives are available for speaking engagements at major fintech and technology conferences globally.",
     },
   ],
+  cta: { label: "Download Media Kit", href: "#" },
 });
 
 export const BlogPage = make({
   eyebrow: "Company",
-  title: "The NETFLOW Blog",
-  subtitle: "Insights on markets, product updates, and the future of finance.",
+  title: "NETFLOW Insights",
+  subtitle: "Expert analysis, product updates, and educational guides to help you navigate the future of investing.",
   sections: [
     {
-      heading: "Q1 2026 product roadmap",
-      body: "A look at what we're shipping next — from options trading to social portfolios and AI co-pilots.",
+      heading: "Featured Articles",
+      body: "Dive deep into the most important topics in finance and technology.",
+      bullets: [
+        "The Future of Multi-Chain Portfolios",
+        "Understanding Market Cycles: A Guide for 2026",
+        "How AI is Revolutionizing Copy Trading",
+        "Security Best Practices for Digital Assets"
+      ],
     },
     {
-      heading: "Why we built copy trading",
-      body: "The story behind our most-requested feature, and how we made it safe for first-time investors.",
+      heading: "Product Updates",
+      body: "See what we've been building lately. From new assets to advanced charting tools, we're constantly shipping.",
     },
     {
-      heading: "Behind the brand",
-      body: "How our design team crafted the NETFLOW visual identity from a single neon spark.",
+      heading: "Educational Series",
+      body: "New to investing? Our 'NETFLOW Academy' series covers everything from 'What is a Satoshi?' to 'Advanced Options Strategies'.",
+    },
+    {
+      heading: "Engineering Blog",
+      body: "A technical look at how we build high-availability financial infrastructure. Written by our engineers, for engineers.",
+    },
+    {
+      heading: "Community Spotlight",
+      body: "Highlighting our most successful copy traders and active community members.",
     },
   ],
 });
 
 export const SecurityPage = make({
   eyebrow: "Company",
-  title: "Security at NETFLOW",
-  subtitle: "Bank-grade protection. Audited code. Zero compromises on your assets.",
+  title: "Safe and Secure",
+  subtitle: "Your security is our top priority. We use institutional-grade encryption and multi-layered protection to keep your assets safe.",
   sections: [
     {
-      heading: "Custody & insurance",
-      body: "98% of assets in cold storage with multi-sig. Hot wallet balances insured up to $500M by Lloyd's of London.",
-      bullets: ["SOC 2 Type II", "ISO 27001", "$500M insurance"],
+      heading: "Asset Protection",
+      body: "98% of all digital assets are held in geographically distributed, multi-signature cold storage vaults. We maintain a full reserve for all user balances.",
     },
     {
-      heading: "Account protection",
-      body: "Mandatory 2FA, biometric login, withdrawal allow-lists, and 24-hour withdrawal delay on first transfers to a new address.",
+      heading: "Account Security",
+      body: "We provide industry-leading security tools to help you protect your account.",
+      bullets: [
+        "Mandatory hardware-based 2FA support",
+        "Advanced withdrawal white-listing",
+        "Real-time session monitoring and alerts",
+        "Biometric authentication for mobile access"
+      ],
     },
     {
-      heading: "Bug bounty",
-      body: "Up to $1M for critical vulnerabilities. Run in partnership with HackerOne.",
+      heading: "Compliance & Audits",
+      body: "We undergo regular third-party security audits and penetration testing. We are SOC 2 Type II certified and ISO 27001 compliant.",
+    },
+    {
+      heading: "Privacy by Design",
+      body: "We believe privacy is a fundamental right. We use zero-knowledge proofs and advanced encryption to ensure your data stays your own.",
+    },
+    {
+      heading: "Bug Bounty Program",
+      body: "We partner with top ethical hackers globally to identify and patch vulnerabilities before they can be exploited. We've paid out over $1M in bounties.",
+    },
+    {
+      heading: "Insurance Coverage",
+      body: "Our hot wallets are insured against theft and cybersecurity breaches by leading global insurance providers.",
+    },
+    {
+      heading: "System Integrity",
+      body: "Our infrastructure is designed for 99.99% uptime with automated fail-over and real-time threat detection.",
     },
   ],
 });
@@ -279,77 +350,135 @@ export const HelpCenterPage = make({
 export const ApiDocsPage = make({
   eyebrow: "Resources",
   title: "Developer API",
-  subtitle: "Build on NETFLOW. REST and WebSocket APIs for trading, market data, and accounts.",
+  subtitle: "Build on the world's most powerful financial infrastructure. Our REST and WebSocket APIs provide real-time access to markets and account management.",
   sections: [
     {
-      heading: "REST API",
-      body: "Place orders, fetch balances, and query market data with simple HTTPS endpoints. OpenAPI spec available.",
-      bullets: ["1,000 req/min rate limit", "HMAC-SHA256 auth", "Sandbox environment"],
+      heading: "Introduction",
+      body: "The NETFLOW API is organized around REST. Our API has predictable resource-oriented URLs, accepts form-encoded request bodies, returns JSON-encoded responses, and uses standard HTTP response codes, authentication, and verbs.",
     },
     {
-      heading: "WebSocket streams",
-      body: "Real-time order book, trade, and ticker streams with sub-10ms latency from our AWS regions.",
+      heading: "Authentication",
+      body: "Authenticate your account by including your secret key in API requests. You can manage your API keys in the Settings page of your dashboard. Never share your secret keys in publicly accessible areas.",
     },
     {
-      heading: "SDKs",
-      body: "Official libraries for Python, TypeScript, Go, and Rust. Community SDKs for everything else.",
+      heading: "Rate Limits",
+      body: "To ensure system stability, we enforce rate limits on all API endpoints. Standard accounts are limited to 10 requests per second. Institutional accounts can request higher limits.",
+    },
+    {
+      heading: "WebSocket Streams",
+      body: "For real-time market data, use our WebSocket API. We provide low-latency streams for ticker updates, order book depth, and trade execution reports.",
+    },
+    {
+      heading: "SDKs & Libraries",
+      body: "We provide official SDKs for Python, Node.js, Go, and Ruby to help you get started quickly.",
+    },
+    {
+      heading: "Error Codes",
+      body: "Our API uses conventional HTTP response codes to indicate the success or failure of an API request. In general: 2xx codes indicate success, 4xx codes indicate an error from the client, and 5xx codes indicate an error from our servers.",
     },
   ],
+  cta: { label: "View API Reference", href: "#" },
 });
 
 export const StatusPage = make({
   eyebrow: "Resources",
-  title: "System status",
-  subtitle: "Real-time uptime and incident reports for every NETFLOW service.",
+  title: "System Status",
+  subtitle: "Real-time updates on the health and performance of the NETFLOW ecosystem. We pride ourselves on 99.99% uptime.",
   sections: [
     {
-      heading: "All systems operational",
-      body: "Trading, deposits, withdrawals, and APIs are all running normally.",
-      bullets: ["Trading: 100% uptime (90d)", "Deposits: 99.99%", "API: 99.98%"],
+      heading: "All Systems Operational",
+      body: "Our core systems are currently performing within normal parameters.",
+      bullets: [
+        "Trading Engine: 100% Uptime",
+        "Wallet Services: 100% Uptime",
+        "Public API: 100% Uptime",
+        "Web Dashboard: 100% Uptime",
+        "Mobile Application: 100% Uptime"
+      ],
     },
     {
-      heading: "Past incidents",
-      body: "No incidents reported in the last 30 days. Subscribe to status updates via email or RSS.",
+      heading: "Past Incidents",
+      body: "Transparency is core to our values. Here are the details of our most recent maintenance and incidents.",
+      bullets: [
+        "Feb 12, 2026: Scheduled database maintenance (Completed)",
+        "Jan 28, 2026: Minor latency on WebSocket stream (Resolved)",
+        "Dec 15, 2025: API rate limit adjustment (Completed)"
+      ],
+    },
+    {
+      heading: "Monitoring Infrastructure",
+      body: "We use globally distributed monitoring agents to check our system health every 30 seconds from over 50 locations worldwide.",
+    },
+    {
+      heading: "Incident Response",
+      body: "Our 24/7 on-call engineering team is notified within seconds of any system anomaly. We maintain a rigorous post-mortem process to prevent recurrence.",
     },
   ],
 });
 
 export const FeesPage = make({
   eyebrow: "Resources",
-  title: "Transparent fees",
-  subtitle: "No hidden charges. No surprise spreads. See exactly what you pay.",
+  title: "Transparent Fee Structure",
+  subtitle: "No hidden charges. No surprise spreads. We believe in clear and competitive pricing for all investors.",
   sections: [
     {
-      heading: "Trading fees",
-      body: "Crypto: 0.10% maker / 0.20% taker. Stocks & ETFs: $0 commission. FX: 0.5% spread.",
+      heading: "Trading Fees",
+      body: "Our maker-taker fee model rewards liquidity providers and keeps costs low for all traders.",
+      bullets: [
+        "Maker Fee: 0.10%",
+        "Taker Fee: 0.13%",
+        "Volume-based discounts available for high-frequency traders"
+      ],
     },
     {
-      heading: "Deposits & withdrawals",
-      body: "Free ACH and SEPA deposits. Crypto deposits free. Withdrawal fees vary by network.",
+      heading: "Deposit & Withdrawal Fees",
+      body: "We keep our transfer fees as close to cost as possible.",
+      bullets: [
+        "Bank Transfers (ACH/SEPA): $0.00",
+        "Crypto Deposits: $0.00",
+        "Crypto Withdrawals: Dynamic based on network congestion",
+        "Wire Transfers: $25.00 flat fee"
+      ],
     },
     {
-      heading: "Volume discounts",
-      body: "Trade more, pay less. Tiered fee structure scales down to 0.02% for $50M+ monthly volume.",
+      heading: "Staking & Earn Fees",
+      body: "We charge a small 5% commission on rewards earned to cover infrastructure and slashing insurance costs.",
+    },
+    {
+      heading: "Institutional Pricing",
+      body: "Custom fee schedules, sub-account management, and dedicated support for institutional clients with over $10M AUM.",
+    },
+    {
+      heading: "No Account Fees",
+      body: "We do not charge for account maintenance, inactivity, or opening an account.",
     },
   ],
 });
 
 export const TaxCenterPage = make({
   eyebrow: "Resources",
-  title: "Tax Center",
-  subtitle: "Generate tax reports, track cost basis, and export to TurboTax in one click.",
+  title: "Tax Reporting Center",
+  subtitle: "Simplified tax reporting for your digital assets and investments. We provide the tools you need to stay compliant.",
   sections: [
     {
-      heading: "Automatic tracking",
-      body: "Every trade, dividend, and reward is logged with cost basis using FIFO, LIFO, or HIFO accounting.",
+      heading: "Automated Tax Forms",
+      body: "Download pre-filled tax forms (e.g., Form 1099-B, 1099-MISC) directly from your dashboard every January.",
     },
     {
-      heading: "One-click exports",
-      body: "Form 8949, Schedule D, and country-specific reports for US, UK, Canada, Australia, and Germany.",
+      heading: "Transaction Exports",
+      body: "Export your entire transaction history in CSV or PDF format, compatible with leading tax software like TurboTax and CoinTracker.",
     },
     {
-      heading: "TurboTax integration",
-      body: "Direct import into TurboTax, TaxAct, and CoinTracker. Or download CSV for any other software.",
+      heading: "Cost Basis Tracking",
+      body: "We use the FIFO (First-In, First-Out) method by default for cost basis tracking, but you can customize this in your settings.",
+    },
+    {
+      heading: "Tax Professionals",
+      body: "Invite your accountant to view your reports through our secure 'Accountant Access' portal.",
+    },
+    {
+      heading: "Global Tax Guides",
+      body: "We provide region-specific tax guides for the US, UK, EU, and Singapore to help you understand your local obligations.",
     },
   ],
 });
@@ -480,40 +609,56 @@ export const PrivacyPage = make({
 
 export const DisclosuresPage = make({
   eyebrow: "Legal",
-  title: "Risk disclosures",
-  subtitle: "Important information about the risks of investing on NETFLOW.",
+  title: "Risk Disclosures",
+  subtitle: "Investing involves risk. Please understand the nature of the products you are trading.",
   sections: [
     {
-      heading: "Crypto-asset risks",
-      body: "Digital assets are highly volatile and may lose all value. Smart contract bugs, regulatory changes, and exchange failures are real risks.",
+      heading: "Market Risk",
+      body: "Prices can and do fluctuate on any given day. Due to such fluctuations, you may gain or lose value of your assets at any given moment. Any asset or currency may be subject to large swings in value and may even become worthless.",
     },
     {
-      heading: "Securities risks",
-      body: "Stocks and ETFs may decline in value. Margin trading amplifies both gains and losses. Read our margin disclosure before borrowing.",
+      heading: "Liquidity Risk",
+      body: "Some assets may have low liquidity, making it difficult or impossible to exit a position at the current market price. This is especially true for small-cap tokens and during periods of extreme market stress.",
     },
     {
-      heading: "Operational risks",
-      body: "While we maintain 99.99% uptime, market access can be temporarily disrupted. Use limit orders to manage execution risk.",
+      heading: "Technology Risk",
+      body: "The Platform and the underlying blockchains are subject to technical risks, including software bugs, hardware failures, and malicious attacks. We do not guarantee that the services will be uninterrupted or error-free.",
+    },
+    {
+      heading: "Regulatory Risk",
+      body: "The regulatory status of digital assets is currently unsettled in many jurisdictions. Changes in law or regulation may affect the value of your assets or your ability to use the Platform.",
+    },
+    {
+      heading: "Custodial Risk",
+      body: "While we employ institutional-grade security, no custodial solution is entirely without risk. You acknowledge that your assets are subject to the risks of our custodial infrastructure.",
     },
   ],
 });
 
 export const LicensesPage = make({
   eyebrow: "Legal",
-  title: "Licenses & registrations",
-  subtitle: "NETFLOW is licensed and regulated in 40+ jurisdictions worldwide.",
+  title: "Licenses & Registrations",
+  subtitle: "NETFLOW is committed to regulatory compliance and holds licenses in multiple jurisdictions.",
   sections: [
     {
       heading: "United States",
-      body: "Money Services Business registered with FinCEN. Money Transmitter Licenses in 49 states. Broker-dealer subsidiary registered with FINRA.",
+      body: "NETFLOW is registered as a Money Services Business (MSB) with FinCEN and holds Money Transmitter Licenses (MTL) in 40+ states.",
     },
     {
-      heading: "European Union",
-      body: "Authorised under MiCA by the Central Bank of Ireland. Passportable across all EEA member states.",
+      heading: "Europe",
+      body: "NETFLOW is registered as a Virtual Asset Service Provider (VASP) in several EU member states and is compliant with AMLD5 regulations.",
     },
     {
-      heading: "Asia-Pacific",
-      body: "MAS-licensed in Singapore (Major Payment Institution). FSA-registered in Japan. AUSTRAC-registered in Australia.",
+      heading: "Singapore",
+      body: "NETFLOW holds a Major Payment Institution license from the Monetary Authority of Singapore (MAS).",
+    },
+    {
+      heading: "United Kingdom",
+      body: "NETFLOW is registered with the Financial Conduct Authority (FCA) for crypto-asset activities.",
+    },
+    {
+      heading: "Other Jurisdictions",
+      body: "We are constantly expanding our regulatory footprint. Please check our full list of registrations for updates.",
     },
   ],
 });
@@ -521,15 +666,27 @@ export const LicensesPage = make({
 export const CookiesPage = make({
   eyebrow: "Legal",
   title: "Cookie Policy",
-  subtitle: "How and why we use cookies and similar technologies.",
+  subtitle: "How we use cookies and similar technologies to improve your experience.",
   sections: [
     {
-      heading: "What cookies we use",
-      body: "Essential cookies for login and security. Analytics cookies to understand usage. No third-party advertising cookies — ever.",
+      heading: "What are cookies?",
+      body: "Cookies are small text files that are placed on your device by websites that you visit. They are widely used to make websites work, or work more efficiently, as well as to provide information to the owners of the site.",
     },
     {
-      heading: "Manage your preferences",
-      body: "Adjust cookie settings anytime from your browser or our preference center. Disabling essential cookies will break functionality.",
+      heading: "Necessary Cookies",
+      body: "These cookies are essential for you to move around the website and use its features, such as accessing secure areas of the website. Without these cookies, services like logging in cannot be provided.",
+    },
+    {
+      heading: "Performance Cookies",
+      body: "These cookies collect information about how visitors use a website, for instance which pages visitors go to most often. These cookies don't collect information that identifies a visitor. All information these cookies collect is aggregated and therefore anonymous.",
+    },
+    {
+      heading: "Functionality Cookies",
+      body: "These cookies allow the website to remember choices you make (such as your user name, language or the region you are in) and provide enhanced, more personal features.",
+    },
+    {
+      heading: "Managing Cookies",
+      body: "Most web browsers allow some control of most cookies through the browser settings. To find out more about cookies, including how to see what cookies have been set and how to manage and delete them, visit www.aboutcookies.org.",
     },
   ],
 });

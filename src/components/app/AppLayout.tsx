@@ -134,7 +134,7 @@ export const AppLayout = () => {
     navItems.find((n) => location.pathname.startsWith(n.to))?.label ?? "Dashboard";
 
   return (
-    <div className="min-h-screen bg-background relative flex flex-col">
+    <div className="min-h-screen bg-background relative flex flex-col w-full overflow-x-hidden">
       <div className="grid-bg-animated" />
       
       {user?.kycStatus === 'unverified' && (
@@ -199,8 +199,8 @@ export const AppLayout = () => {
         </div>
       </aside>
 
-      {/* Main */}
-      <div className="lg:pl-64">
+      {/* Main Container */}
+      <div className="flex-1 flex flex-col min-w-0 w-full lg:pl-64">
         {/* Top bar */}
         <header className="sticky top-0 z-30 glass-strong border-b border-border/40">
           <div className="flex items-center gap-3 px-4 md:px-8 h-16">
@@ -274,8 +274,8 @@ export const AppLayout = () => {
           </div>
         </header>
 
-        <main className="flex-1 p-4 md:p-8 pb-28 lg:pb-8 overflow-y-auto overflow-x-hidden">
-          <div key={location.pathname} className="animate-fade-in-up max-w-full">
+        <main className="flex-1 p-4 md:p-8 pb-32 lg:pb-8 overflow-y-auto overflow-x-hidden w-full flex flex-col items-center">
+          <div key={location.pathname} className="animate-fade-in-up w-full max-w-7xl mx-auto flex-1">
             <Outlet />
           </div>
         </main>
