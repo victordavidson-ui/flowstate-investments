@@ -1,6 +1,7 @@
 import { Area, AreaChart, ResponsiveContainer, BarChart, Bar, Tooltip } from "recharts";
 import { Users, Activity, ArrowRightLeft, DollarSign, TrendingUp, Clock, AlertTriangle } from "lucide-react";
 import { useAdmin } from "@/contexts/AdminContext";
+import { useTranslation } from "react-i18next";
 
 const revData = Array.from({ length: 7 }, (_, i) => ({
   name: `Day ${i + 1}`,
@@ -10,6 +11,7 @@ const revData = Array.from({ length: 7 }, (_, i) => ({
 
 export const AdminDashboard = () => {
   const { state } = useAdmin();
+  const { t } = useTranslation();
 
   const totalUsers = state.users.length;
   const activeUsers = state.users.filter(u => u.status === "Verified").length;
@@ -18,14 +20,14 @@ export const AdminDashboard = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-bold">Platform Overview</h1>
-          <p className="text-muted-foreground mt-1">Real-time metrics and financial data.</p>
+          <h1 className="font-display text-3xl font-bold">{t("admin.overview")}</h1>
+          <p className="text-muted-foreground mt-1">{t("admin.portal_desc", "Real-time metrics and financial data.")}</p>
         </div>
         <div className="text-right">
-          <div className="text-xs font-mono uppercase tracking-widest text-muted-foreground">System Status</div>
+          <div className="text-xs font-mono uppercase tracking-widest text-muted-foreground">{t("admin.system_status")}</div>
           <div className="flex items-center gap-2 justify-end text-sm font-semibold text-success">
             <div className="h-2 w-2 rounded-full bg-success shadow-[0_0_8px_hsl(var(--success))] animate-blink" />
-            ALL SYSTEMS NOMINAL
+            {t("admin.nominal", "ALL SYSTEMS NOMINAL")}
           </div>
         </div>
       </div>
@@ -37,11 +39,11 @@ export const AdminDashboard = () => {
           </div>
           <div className="relative z-10">
             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground mb-2">
-              <Users className="h-4 w-4" /> Total Users
+              <Users className="h-4 w-4" /> {t("admin.active_users")}
             </div>
             <div className="font-display text-3xl font-bold">{totalUsers.toLocaleString()}</div>
             <div className="text-xs text-success flex items-center gap-1 mt-1 font-mono">
-              <TrendingUp className="h-3 w-3" /> +12% this week
+              <TrendingUp className="h-3 w-3" /> +12% {t("common.this_wk")}
             </div>
           </div>
         </div>
@@ -52,11 +54,11 @@ export const AdminDashboard = () => {
           </div>
           <div className="relative z-10">
             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground mb-2">
-              <Activity className="h-4 w-4" /> Active Users
+              <Activity className="h-4 w-4" /> {t("admin.active_users")}
             </div>
             <div className="font-display text-3xl font-bold">{activeUsers.toLocaleString()}</div>
             <div className="text-xs text-muted-foreground mt-1 font-mono">
-              Currently verified
+              {t("common.verified", "Currently verified")}
             </div>
           </div>
         </div>
@@ -67,11 +69,11 @@ export const AdminDashboard = () => {
           </div>
           <div className="relative z-10">
             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground mb-2">
-              <ArrowRightLeft className="h-4 w-4" /> Total Volume
+              <ArrowRightLeft className="h-4 w-4" /> {t("admin.total_volume")}
             </div>
             <div className="font-display text-3xl font-bold">${(state.metrics.totalVolume / 1000000).toFixed(2)}M</div>
             <div className="text-xs text-success flex items-center gap-1 mt-1 font-mono">
-              <TrendingUp className="h-3 w-3" /> +4.2% this week
+              <TrendingUp className="h-3 w-3" /> +4.2% {t("common.this_wk")}
             </div>
           </div>
         </div>
@@ -82,11 +84,11 @@ export const AdminDashboard = () => {
           </div>
           <div className="relative z-10">
             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground mb-2">
-              <DollarSign className="h-4 w-4" /> Total Treasury
+              <DollarSign className="h-4 w-4" /> {t("admin.treasury_fees")}
             </div>
             <div className="font-display text-3xl font-bold text-success">${state.metrics.totalRevenue.toLocaleString()}</div>
             <div className="text-xs text-muted-foreground mt-1 font-mono">
-              From {state.settings.exchangeFeePercent}% fees
+              {t("common.from", "From")} {state.settings.exchangeFeePercent}% {t("common.fees")}
             </div>
           </div>
         </div>
@@ -95,7 +97,7 @@ export const AdminDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 glass rounded-3xl p-6">
           <h3 className="font-display font-semibold mb-6 flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-primary" /> Revenue vs Volume (7d)
+            <TrendingUp className="h-5 w-5 text-primary" /> {t("admin.revenue_growth")} vs {t("admin.total_volume")} (7d)
           </h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -113,7 +115,7 @@ export const AdminDashboard = () => {
 
         <div className="glass rounded-3xl p-6 flex flex-col h-full">
           <h3 className="font-display font-semibold mb-4 flex items-center gap-2">
-            <Clock className="h-5 w-5 text-primary" /> Live Activity Feed
+            <Clock className="h-5 w-5 text-primary" /> {t("admin.live_activity", "Live Activity Feed")}
           </h3>
           <div className="flex-1 space-y-4 overflow-y-auto pr-2">
             {state.transactions.slice(0, 5).map(tx => (
@@ -126,14 +128,14 @@ export const AdminDashboard = () => {
                 </div>
                 <div>
                   <div className="font-medium">
-                    {tx.userName} requested a {tx.type.toLowerCase()} of <span className="font-mono font-bold">${tx.amount.toLocaleString()}</span>
+                    {tx.userName} {t("admin.requested_a", "requested a")} {tx.type.toLowerCase()} {t("common.of")} <span className="font-mono font-bold">${tx.amount.toLocaleString()}</span>
                   </div>
                   <div className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
                     <span>{new Date(tx.date).toLocaleTimeString()}</span>
                     <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-semibold ${
                       tx.status === "Pending" ? "bg-warning/20 text-warning" : 
                       tx.status === "Failed" ? "bg-destructive/20 text-destructive" : "bg-success/20 text-success"
-                    }`}>{tx.status}</span>
+                    }`}>{t(`common.${tx.status.toLowerCase()}`)}</span>
                   </div>
                 </div>
               </div>

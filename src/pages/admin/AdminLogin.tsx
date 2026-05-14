@@ -1,16 +1,24 @@
 import { Button } from "@/components/ui/button";
 import { AuthShell, AuthField } from "@/components/auth/AuthShell";
 import { ArrowRight, Loader2, ShieldAlert } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 export const AdminLogin = () => {
   const [passcode, setPasscode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    // If already has the master key in storage, redirect
+    if (localStorage.getItem("admin_master_key") === "1507003") {
+      navigate("/admin/dashboard", { replace: true });
+    }
+  }, [navigate]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,10 +27,8 @@ export const AdminLogin = () => {
       return;
     }
 
-    // In a real app, this is verified on the backend.
-    // For simulation, any passcode works, but let's require at least 8 chars.
-    if (passcode.length < 8) {
-      setError("Invalid admin credential format");
+    if (passcode !== "1507003") {
+      setError("Invalid security key");
       return;
     }
 
@@ -31,12 +37,8 @@ export const AdminLogin = () => {
     
     setTimeout(() => {
       setLoading(false);
-      login({
-        firstName: "System",
-        lastName: "Admin",
-        email: "admin@netflow.io",
-        isAdmin: true,
-      });
+      localStorage.setItem("admin_master_key", passcode);
+      toast.success("Admin access granted");
       navigate("/admin/dashboard", { replace: true });
     }, 1000);
   };
@@ -44,35 +46,35 @@ export const AdminLogin = () => {
   return (
     <AuthShell
       title="AdminOS Authentication"
-      subtitle="Restricted internal control system."
+      subtitle="Enter your master security key to access the terminal."
       footer={
-        <span className="text-muted-foreground flex items-center justify-center gap-2">
-          <ShieldAlert className="h-4 w-4" /> Unauthorized access is strictly prohibited.
+        <span className="text-muted-foreground flex items-center justify-center gap-2 text-xs uppercase tracking-widest font-mono">
+          <ShieldAlert className="h-3 w-3" /> Secure Node Access
         </span>
       }
     >
       <div className="flex justify-center mb-8">
-        <div className="h-16 w-16 rounded-2xl bg-destructive/10 text-destructive flex items-center justify-center border border-destructive/20 shadow-[0_0_15px_hsl(var(--destructive)/0.2)]">
+        <div className="h-16 w-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shadow-[0_0_15px_hsl(var(--primary)/0.2)]">
           <ShieldAlert className="h-8 w-8" />
         </div>
       </div>
 
       <form className="space-y-6" onSubmit={handleLogin}>
         <AuthField 
-          label="Secure Passcode" 
+          label="Security Key" 
           type="password" 
-          placeholder="••••••••••••••••" 
+          placeholder="•••••••" 
           value={passcode}
           onChange={(e) => setPasscode(e.target.value)}
           error={error}
         />
 
-        <Button variant="hero" size="lg" className="w-full group bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-none" disabled={loading}>
+        <Button variant="hero" size="lg" className="w-full group" disabled={loading}>
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <>
-              Authorize Access
+              Initialize Admin Session
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </>
           )}

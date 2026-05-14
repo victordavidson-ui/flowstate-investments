@@ -1,13 +1,23 @@
-import { useMemo, useState } from "react";
-import { Area, AreaChart, ResponsiveContainer } from "recharts";
-import { ArrowUpDown, Bitcoin, Search, Star, TrendingDown, TrendingUp } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import {
+  Search,
+  Star,
+  Bitcoin,
+  TrendingUp,
+  TrendingDown,
+  ArrowUpDown,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
-
+import { Area, AreaChart, ResponsiveContainer } from "recharts";
 import { useMarketData } from "@/hooks/useMarketData";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 type SortKey = "sym" | "price" | "change24h" | "volume";
 
 const Sparkline = ({ data, up }: { data: number[]; up: boolean }) => {
+  const { t } = useTranslation();
   const chartData = data.map((v, i) => ({ i, v }));
   const color = up ? "hsl(152 80% 50%)" : "hsl(0 85% 60%)";
   return (
@@ -33,17 +43,15 @@ const Sparkline = ({ data, up }: { data: number[]; up: boolean }) => {
         </AreaChart>
       </ResponsiveContainer>
       <div className={`text-[9px] font-mono text-center mt-1 ${up ? "text-success/70" : "text-destructive/70"}`}>
-        {up ? "+" : "-"}{Math.abs(data[data.length - 1] - data[0]).toFixed(1)}% this wk
+        {up ? "+" : "-"}{Math.abs(data[data.length - 1] - data[0]).toFixed(1)}% {t("common.this_wk")}
       </div>
     </div>
   );
 };
 
-import { useEffect } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
-
 const MarketsPage = () => {
+  const { t } = useTranslation();
+  const { formatValue } = useCurrency();
   const [tab, setTab] = useState<"all" | "crypto" | "stock" | "watch">("all");
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<{ key: SortKey; dir: "asc" | "desc" }>({
@@ -56,8 +64,8 @@ const MarketsPage = () => {
 
   useEffect(() => {
     setLoading(true);
-    const t = setTimeout(() => setLoading(false), 600);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setLoading(false), 600);
+    return () => clearTimeout(timer);
   }, [tab, sort, q]);
 
   const toggleWatch = (sym: string) => {
@@ -114,28 +122,28 @@ const MarketsPage = () => {
       <div className="flex flex-col md:flex-row md:items-center gap-4">
         <div className="flex items-center gap-1 glass rounded-xl p-1">
           {([
-            { k: "all", l: "All" },
-            { k: "crypto", l: "Crypto" },
-            { k: "stock", l: "Stocks" },
-            { k: "watch", l: "Watchlist" },
-          ] as const).map((t) => (
+            { k: "all", l: t("common.all") },
+            { k: "crypto", l: t("common.crypto") },
+            { k: "stock", l: t("common.stocks") },
+            { k: "watch", l: t("common.watchlist") },
+          ] as const).map((tabItem) => (
             <button
-              key={t.k}
-              onClick={() => setTab(t.k)}
+              key={tabItem.k}
+              onClick={() => setTab(tabItem.k)}
               className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                tab === t.k
+                tab === tabItem.k
                   ? "bg-primary/15 text-primary shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.3)]"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {t.l}
+              {tabItem.l}
             </button>
           ))}
         </div>
         <div className="relative md:ml-auto md:w-72">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search assets…"
+            placeholder={t('common.search', "Search assets…")}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             className="pl-9 bg-muted/40 border-border/60"
@@ -147,15 +155,15 @@ const MarketsPage = () => {
         {/* Header */}
         <div className="hidden md:grid grid-cols-[40px_1.4fr_1fr_0.8fr_1fr_1fr_100px] items-center gap-4 px-6 py-4 border-b border-border/40">
           <div />
-          <SortHead label="Asset" k="sym" />
-          <SortHead label="Price" k="price" />
+          <SortHead label={t('common.asset')} k="sym" />
+          <SortHead label={t('common.price')} k="price" />
           <SortHead label="24h" k="change24h" />
-          <SortHead label="Volume" k="volume" />
+          <SortHead label={t('common.volume')} k="volume" />
           <div className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
-            24h chart
+            {t('common.chart_24h')}
           </div>
           <div className="text-right text-xs font-mono uppercase tracking-wider text-muted-foreground">
-            Trade
+            {t('dashboard.trade')}
           </div>
         </div>
 
@@ -189,7 +197,7 @@ const MarketsPage = () => {
               <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl glass mb-4">
                 <Search className="h-5 w-5 text-muted-foreground" />
               </div>
-              <p className="text-sm text-muted-foreground">No assets match your search.</p>
+              <p className="text-sm text-muted-foreground">{t("common.no_results")}</p>
             </div>
           ) : (
             rows.map((r) => {
@@ -222,7 +230,7 @@ const MarketsPage = () => {
                 </div>
 
                 <div className="hidden md:block text-sm font-mono font-medium">
-                  ${r.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                  {formatValue(r.price)}
                 </div>
 
                 <div
@@ -246,7 +254,7 @@ const MarketsPage = () => {
                 {/* Mobile price */}
                 <div className="md:hidden text-right">
                   <div className="text-sm font-mono font-medium">
-                    ${r.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                    {formatValue(r.price)}
                   </div>
                   <div
                     className={`text-xs font-mono ${
@@ -259,10 +267,10 @@ const MarketsPage = () => {
 
                 <div className="hidden md:flex justify-end">
                   <button 
-                    onClick={() => toast.info(`Trading flow initiated for ${r.sym}.`)}
+                    onClick={() => toast.info(`${t("dashboard.trade")} flow initiated for ${r.sym}.`)}
                     className="rounded-lg bg-primary/10 text-primary border border-primary/30 hover:bg-primary/20 hover:border-primary hover:shadow-glow px-4 py-1.5 text-xs font-semibold transition-all active:scale-95"
                   >
-                    Trade
+                    {t("dashboard.trade")}
                   </button>
                 </div>
               </div>

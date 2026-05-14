@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Zap } from "lucide-react";
+import { ArrowLeft, Zap, Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/landing/Navbar";
@@ -62,23 +63,42 @@ export const AuthShell = ({
 export const AuthField = ({
   label,
   error,
+  type,
   ...props
-}: React.InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string }) => (
-  <div className="group">
-    <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1.5 block group-focus-within:text-primary transition-colors">
-      {label}
-    </label>
-    <Input
-      {...props}
-      className={`bg-muted/40 border-border/60 transition-all duration-300 h-11 ${
-        error 
-          ? "border-destructive/50 focus-visible:ring-destructive/20 focus-visible:border-destructive" 
-          : "focus-visible:ring-primary/20 focus-visible:border-primary/60 hover:border-primary/40 shadow-sm"
-      }`}
-    />
-    {error && <p className="text-[10px] text-destructive mt-1.5 animate-fade-in">{error}</p>}
-  </div>
-);
+}: React.InputHTMLAttributes<HTMLInputElement> & { label: string; error?: string }) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPassword = type === "password";
+  const currentType = isPassword ? (showPassword ? "text" : "password") : type;
+
+  return (
+    <div className="group">
+      <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1.5 block group-focus-within:text-primary transition-colors">
+        {label}
+      </label>
+      <div className="relative">
+        <Input
+          {...props}
+          type={currentType}
+          className={`bg-muted/40 border-border/60 transition-all duration-300 h-11 ${
+            error 
+              ? "border-destructive/50 focus-visible:ring-destructive/20 focus-visible:border-destructive" 
+              : "focus-visible:ring-primary/20 focus-visible:border-primary/60 hover:border-primary/40 shadow-sm"
+          } ${isPassword ? "pr-10" : ""}`}
+        />
+        {isPassword && (
+          <button
+            type="button"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        )}
+      </div>
+      {error && <p className="text-[10px] text-destructive mt-1.5 animate-fade-in">{error}</p>}
+    </div>
+  );
+};
 
 export const SocialButtons = () => {
   const { login } = useAuth();

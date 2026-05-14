@@ -21,8 +21,12 @@ import {
   HelpCircle,
   Menu,
   X,
+  Globe,
+  Coins,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -37,27 +41,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { NotificationsPanel } from "./NotificationsPanel";
-
-const navItems = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/markets", label: "Markets", icon: LineChart },
-  { to: "/trade", label: "Trade", icon: CandlestickChart },
-  { to: "/wallet", label: "Wallet", icon: Wallet },
-  { to: "/copy", label: "Copy", icon: Users },
-  { to: "/earn", label: "Earn", icon: Repeat },
-  { to: "/plans", label: "Plans", icon: Crown },
-  { to: "/referrals", label: "Referrals", icon: Gift },
-  { to: "/support", label: "Support", icon: HelpCircle },
-  { to: "/settings", label: "Settings", icon: Settings },
-];
-
-const mobileFooterItems = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/markets", label: "Markets", icon: LineChart },
-  { to: "/trade", label: "Trade", icon: CandlestickChart },
-  { to: "/wallet", label: "Wallet", icon: Wallet },
-  { to: "/settings", label: "Settings", icon: Settings },
-];
+import { LiveChat } from "./LiveChat";
 
 const SidebarLink = ({
   to,
@@ -127,11 +111,47 @@ const MobileNavItem = ({
 );
 
 export const AppLayout = () => {
+  const { t, i18n } = useTranslation();
+  const { currency, setCurrency } = useCurrency();
   const location = useLocation();
   const [notifOpen, setNotifOpen] = useState(false);
   const { user, logout } = useAuth();
+
+  const navItems = [
+    { to: "/dashboard", label: t('nav.dashboard', "Dashboard"), icon: LayoutDashboard },
+    { to: "/markets", label: t('nav.markets', "Markets"), icon: LineChart },
+    { to: "/trade", label: t('nav.trade', "Trade"), icon: CandlestickChart },
+    { to: "/wallet", label: t('nav.wallet', "Wallet"), icon: Wallet },
+    { to: "/copy", label: t('nav.copy', "Copy"), icon: Users },
+    { to: "/earn", label: t('nav.earn', "Earn"), icon: Repeat },
+    { to: "/plans", label: t('nav.plans', "Plans"), icon: Crown },
+    { to: "/referrals", label: t('nav.referrals', "Referrals"), icon: Gift },
+    { to: "/support", label: t('nav.support', "Support"), icon: HelpCircle },
+    { to: "/settings", label: t('nav.settings', "Settings"), icon: Settings },
+  ];
+
+  const mobileFooterItems = [
+    { to: "/dashboard", label: t('nav.dashboard', "Dash"), icon: LayoutDashboard },
+    { to: "/markets", label: t('nav.markets', "Markets"), icon: LineChart },
+    { to: "/trade", label: t('nav.trade', "Trade"), icon: CandlestickChart },
+    { to: "/wallet", label: t('nav.wallet', "Wallet"), icon: Wallet },
+    { to: "/settings", label: t('nav.settings', "Settings"), icon: Settings },
+  ];
+
   const pageTitle =
-    navItems.find((n) => location.pathname.startsWith(n.to))?.label ?? "Dashboard";
+    navItems.find((n) => location.pathname.startsWith(n.to))?.label ?? t('nav.dashboard', "Dashboard");
+
+  const toggleLanguage = () => {
+    const current = i18n.language || 'en';
+    const nextLang = current.startsWith('en') ? 'es' : current.startsWith('es') ? 'fr' : 'en';
+    i18n.changeLanguage(nextLang);
+  };
+
+  const toggleCurrency = () => {
+    const currencies: ('USD' | 'EUR' | 'GBP' | 'JPY' | 'CAD' | 'NGN' | 'ZAR')[] = ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'NGN', 'ZAR'];
+    const nextIdx = (currencies.indexOf(currency) + 1) % currencies.length;
+    setCurrency(currencies[nextIdx]);
+  };
 
   return (
     <div className="min-h-screen bg-background relative flex flex-col w-full overflow-x-hidden">
@@ -142,13 +162,13 @@ export const AppLayout = () => {
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
             <div className="flex items-center gap-2 text-[10px] md:text-xs font-medium text-primary">
               <ShieldCheck className="h-3 w-3 md:h-4 md:4" />
-              <span>Complete your identity verification to unlock trading and withdrawals.</span>
+              <span>{t("common.kyc_msg")}</span>
             </div>
             <NavLink 
               to="/settings" 
               className="text-[10px] md:text-xs font-bold uppercase tracking-wider bg-primary text-primary-foreground px-3 py-1 rounded-full hover:shadow-glow transition-all"
             >
-              Verify Now
+              {t("common.verify_now")}
             </NavLink>
           </div>
         </div>
@@ -170,7 +190,7 @@ export const AppLayout = () => {
 
         <nav className="px-4 flex-1 space-y-1">
           <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground px-3 mb-2">
-            Platform
+            {t("common.platform")}
           </div>
           {navItems.map((n) => (
             <SidebarLink key={n.to} to={n.to} label={n.label} Icon={n.icon} />
@@ -181,12 +201,12 @@ export const AppLayout = () => {
           <div className="glass rounded-2xl p-4 relative overflow-hidden">
             <div className="absolute -top-8 -right-8 h-24 w-24 bg-primary/20 rounded-full blur-2xl" />
             <ShieldCheck className="h-5 w-5 text-primary mb-2" />
-            <p className="text-sm font-semibold mb-1">Verify identity</p>
+            <p className="text-sm font-semibold mb-1">{t("common.kyc_title")}</p>
             <p className="text-xs text-muted-foreground mb-3">
-              Unlock higher limits
+              {t("common.kyc_desc")}
             </p>
             <Button variant="hero" size="sm" className="w-full" asChild>
-              <NavLink to="/kyc">Start KYC</NavLink>
+              <NavLink to="/kyc">{t("common.start_kyc")}</NavLink>
             </Button>
           </div>
           <button 
@@ -194,7 +214,7 @@ export const AppLayout = () => {
             className="flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-all"
           >
             <LogOut className="h-4 w-4" />
-            Sign out
+            {t("common.sign_out")}
           </button>
         </div>
       </aside>
@@ -212,64 +232,81 @@ export const AppLayout = () => {
             <h1 className="hidden md:block font-display text-lg font-semibold">
               {pageTitle}
             </h1>
-            <div className="flex-1 max-w-md ml-auto">
+            <div className="flex-1 max-w-md ml-auto hidden md:block">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search markets, assets…"
+                  placeholder={t("common.search")}
                   className="pl-9 bg-muted/40 border-border/60 focus-visible:ring-primary/40"
                 />
               </div>
             </div>
-            <button
-              type="button"
-              aria-label="Open notifications"
-              onClick={() => setNotifOpen(true)}
-              className="relative h-10 w-10 rounded-xl glass hover:border-primary/40 transition-colors hidden md:flex items-center justify-center"
-            >
-              <Bell className="h-4 w-4" />
-              <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary shadow-glow animate-blink" />
-            </button>
-            <div className="hidden md:flex h-10 w-10 rounded-xl bg-gradient-primary items-center justify-center text-primary-foreground font-display font-bold shadow-glow">
-              A
-            </div>
-            {/* Mobile Hamburger Menu */}
-            <div className="lg:hidden">
-              <Sheet>
-                <SheetTrigger asChild>
-                  <button className="relative h-10 w-10 rounded-xl glass hover:border-primary/40 transition-colors flex items-center justify-center">
-                    <Menu className="h-5 w-5" />
-                  </button>
-                </SheetTrigger>
-                <SheetContent side="right" className="glass-strong border-l border-border/40 p-0 w-[280px]">
-                  <div className="flex flex-col h-full">
-                    <div className="p-6">
-                      <div className="flex items-center gap-2">
-                        <div className="h-9 w-9 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
-                          <Zap className="h-5 w-5 text-primary-foreground" strokeWidth={2.5} />
+
+            <div className="flex items-center gap-2 ml-auto">
+              <button 
+                onClick={toggleLanguage}
+                className="h-10 px-3 rounded-xl glass hover:border-primary/40 transition-colors flex items-center gap-2 text-[10px] font-mono uppercase"
+              >
+                <Globe className="h-4 w-4" />
+                <span className="hidden sm:inline">{i18n.language?.substring(0, 2) || 'en'}</span>
+              </button>
+              <button 
+                onClick={toggleCurrency}
+                className="h-10 px-3 rounded-xl glass hover:border-primary/40 transition-colors flex items-center gap-2 text-[10px] font-mono uppercase"
+              >
+                <Coins className="h-4 w-4" />
+                <span className="hidden sm:inline">{currency}</span>
+              </button>
+              <button
+                type="button"
+                aria-label="Open notifications"
+                onClick={() => setNotifOpen(true)}
+                className="relative h-10 w-10 rounded-xl glass hover:border-primary/40 transition-colors flex items-center justify-center"
+              >
+                <Bell className="h-4 w-4" />
+                <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-primary shadow-glow animate-blink" />
+              </button>
+              <div className="flex h-10 w-10 rounded-xl bg-gradient-primary items-center justify-center text-primary-foreground font-display font-bold shadow-glow">
+                {user?.firstName?.charAt(0) || 'A'}
+              </div>
+              {/* Mobile Hamburger Menu */}
+              <div className="lg:hidden">
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <button className="relative h-10 w-10 rounded-xl glass hover:border-primary/40 transition-colors flex items-center justify-center">
+                      <Menu className="h-5 w-5" />
+                    </button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="glass-strong border-l border-border/40 p-0 w-[280px]">
+                    <div className="flex flex-col h-full">
+                      <div className="p-6">
+                        <div className="flex items-center gap-2">
+                          <div className="h-9 w-9 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
+                            <Zap className="h-5 w-5 text-primary-foreground" strokeWidth={2.5} />
+                          </div>
+                          <span className="font-display text-xl font-bold tracking-tight">
+                            NET<span className="text-gradient-primary">FLOW</span>
+                          </span>
                         </div>
-                        <span className="font-display text-xl font-bold tracking-tight">
-                          NET<span className="text-gradient-primary">FLOW</span>
-                        </span>
+                      </div>
+                      <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
+                        <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground px-3 mb-2 mt-4">
+                          {t("common.platform")}
+                        </div>
+                        {navItems.map((n) => (
+                          <SidebarLink key={n.to} to={n.to} label={n.label} Icon={n.icon} />
+                        ))}
+                      </nav>
+                      <div className="p-4 border-t border-border/40">
+                        <button onClick={logout} className="flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-all">
+                          <LogOut className="h-4 w-4" />
+                          {t("common.sign_out")}
+                        </button>
                       </div>
                     </div>
-                    <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
-                      <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground px-3 mb-2 mt-4">
-                        Platform
-                      </div>
-                      {navItems.map((n) => (
-                        <SidebarLink key={n.to} to={n.to} label={n.label} Icon={n.icon} />
-                      ))}
-                    </nav>
-                    <div className="p-4 border-t border-border/40">
-                      <button className="flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-all">
-                        <LogOut className="h-4 w-4" />
-                        Sign out
-                      </button>
-                    </div>
-                  </div>
-                </SheetContent>
-              </Sheet>
+                  </SheetContent>
+                </Sheet>
+              </div>
             </div>
           </div>
         </header>
@@ -293,25 +330,25 @@ export const AppLayout = () => {
             <DropdownMenuItem className="gap-3 py-3 cursor-pointer" asChild>
               <NavLink to="/wallet">
                 <Plus className="h-4 w-4 text-primary" />
-                <span>Deposit</span>
+                <span>{t("common.deposit")}</span>
               </NavLink>
             </DropdownMenuItem>
             <DropdownMenuItem className="gap-3 py-3 cursor-pointer" asChild>
               <NavLink to="/wallet">
                 <ArrowDownToLine className="h-4 w-4 text-primary" />
-                <span>Withdraw</span>
+                <span>{t("common.withdraw")}</span>
               </NavLink>
             </DropdownMenuItem>
             <DropdownMenuItem className="gap-3 py-3 cursor-pointer" asChild>
               <NavLink to="/trade">
                 <Repeat className="h-4 w-4 text-primary" />
-                <span>Trade</span>
+                <span>{t("common.trade")}</span>
               </NavLink>
             </DropdownMenuItem>
             <DropdownMenuItem className="gap-3 py-3 cursor-pointer" asChild>
               <NavLink to="/earn">
                 <TrendingUp className="h-4 w-4 text-primary" />
-                <span>Earn</span>
+                <span>{t("common.earn")}</span>
               </NavLink>
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -326,23 +363,7 @@ export const AppLayout = () => {
         </div>
       </nav>
 
-      {/* Floating 24/7 Support Widget */}
-      <div className="fixed bottom-6 right-6 z-50 hidden lg:block">
-        <button 
-          onClick={() => {
-            const el = document.getElementById("support-chat-toast");
-            if (!el) {
-              import("sonner").then(({ toast }) => {
-                toast.info("Connecting to Support Agent...", { id: "support-chat-toast" });
-              });
-            }
-          }}
-          className="h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-[0_0_20px_hsl(var(--primary)/0.4)] flex items-center justify-center hover:scale-110 active:scale-95 transition-all group"
-        >
-          <HelpCircle className="h-6 w-6 group-hover:hidden" />
-          <span className="hidden group-hover:block font-bold text-xs">Chat</span>
-        </button>
-      </div>
+      <LiveChat />
 
       <NotificationsPanel open={notifOpen} onOpenChange={setNotifOpen} />
       </div>

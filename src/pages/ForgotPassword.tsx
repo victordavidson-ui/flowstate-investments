@@ -1,159 +1,122 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { AuthShell, AuthField } from "@/components/auth/AuthShell";
-import { ArrowRight, Loader2, Mail, Phone, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Loader2, KeyRound, ShieldCheck } from "lucide-react";
 import { useState } from "react";
+import api from "@/lib/axios";
+import { toast } from "sonner";
 
-export const ForgotPassword = () => {
-  const [method, setMethod] = useState<"email" | "phone">("email");
-  const [contact, setContact] = useState("");
+const ForgotPassword = () => {
+  const [step, setStep] = useState(1); // 1: Email, 2: OTP + New Password
+  const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState<"request" | "verify" | "success">("request");
-  const [error, setError] = useState<string | undefined>();
+  const navigate = useNavigate();
 
-  const handleRequest = (e: React.FormEvent) => {
+  const handleRequestReset = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!contact) {
-      setError(method === "email" ? "Email is required" : "Phone number is required");
-      return;
-    }
-    
-    setError(undefined);
+    if (!email) return;
     setLoading(true);
-    // Simulate sending OTP
-    setTimeout(() => {
+    try {
+      await api.post('/auth/forgot-password', { email });
+      setStep(2);
+      toast.success("Reset code sent to your email.");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to request reset");
+    } finally {
       setLoading(false);
-      setStep("verify");
-    }, 1000);
+    }
   };
 
-  const handleVerify = (e: React.FormEvent) => {
+  const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (otp.length < 6) {
-      setError("Please enter the 6-digit code");
-      return;
-    }
-    
-    setError(undefined);
+    if (!otp || !newPassword) return;
     setLoading(true);
-    // Simulate verifying OTP
-    setTimeout(() => {
+    try {
+      await api.post('/auth/reset-password', { email, code: otp, newPassword });
+      toast.success("Password reset successful. Please login.");
+      navigate("/login");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Reset failed");
+    } finally {
       setLoading(false);
-      setStep("success");
-    }, 1000);
+    }
   };
+
+  if (step === 2) {
+    return (
+      <AuthShell
+        title="Create new password"
+        subtitle={`Enter the 6-digit code sent to ${email}`}
+        footer={
+          <button onClick={() => setStep(1)} className="flex items-center gap-2 text-primary hover:text-primary-glow font-medium mx-auto">
+            <ArrowLeft className="h-4 w-4" /> Try another email
+          </button>
+        }
+      >
+        <div className="flex justify-center mb-8">
+          <div className="h-16 w-16 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary shadow-glow-secondary">
+            <ShieldCheck className="h-8 w-8" />
+          </div>
+        </div>
+        <form className="space-y-6" onSubmit={handleResetPassword}>
+          <div>
+            <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-2 block text-center">Verification Code</label>
+            <input 
+              type="text" 
+              maxLength={6}
+              placeholder="000000"
+              value={otp}
+              onChange={e => setOtp(e.target.value.replace(/\D/g, ""))}
+              className="w-full bg-muted/40 border border-border/60 rounded-xl px-4 py-4 text-2xl font-mono text-center tracking-[1em] focus:outline-none focus:border-primary/60 transition-all"
+              required
+            />
+          </div>
+          <AuthField 
+            label="New Password" 
+            type="password" 
+            placeholder="Min 8 characters" 
+            value={newPassword} 
+            onChange={e => setNewPassword(e.target.value)}
+          />
+          <Button variant="hero" size="lg" className="w-full py-7" disabled={loading}>
+            {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Reset Password"}
+          </Button>
+        </form>
+      </AuthShell>
+    );
+  }
 
   return (
     <AuthShell
-      title={step === "success" ? "Verification complete" : "Recover account"}
-      subtitle={
-        step === "request" 
-          ? "We'll send you a recovery code to verify your identity."
-          : step === "verify" 
-          ? `Enter the 6-digit code sent to your ${method}.`
-          : "You can now reset your password."
-      }
+      title="Reset password"
+      subtitle="Enter your email and we'll send you a 6-digit code to reset your password."
       footer={
-        <>
-          Remember your password?{" "}
-          <Link to="/login" className="text-primary hover:text-primary-glow font-medium">
-            Sign in
-          </Link>
-        </>
+        <Link to="/login" className="flex items-center gap-2 text-primary hover:text-primary-glow font-medium mx-auto">
+          <ArrowLeft className="h-4 w-4" /> Back to login
+        </Link>
       }
     >
-      {step === "request" && (
-        <form className="space-y-6" onSubmit={handleRequest}>
-          <div className="flex bg-muted/30 p-1 rounded-xl">
-            <button
-              type="button"
-              onClick={() => setMethod("email")}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-all ${
-                method === "email" ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Mail className="h-4 w-4" /> Email
-            </button>
-            <button
-              type="button"
-              onClick={() => setMethod("phone")}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-all ${
-                method === "phone" ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Phone className="h-4 w-4" /> SMS
-            </button>
-          </div>
-
-          <AuthField 
-            label={method === "email" ? "Email address" : "Phone number"} 
-            type={method === "email" ? "email" : "tel"} 
-            placeholder={method === "email" ? "you@netflow.io" : "+1 (555) 000-0000"} 
-            value={contact}
-            onChange={(e) => setContact(e.target.value)}
-            error={error}
-          />
-
-          <Button variant="hero" size="lg" className="w-full group" disabled={loading}>
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <>
-                Send Code
-                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </>
-            )}
-          </Button>
-        </form>
-      )}
-
-      {step === "verify" && (
-        <form className="space-y-6" onSubmit={handleVerify}>
-          <AuthField 
-            label="Verification Code" 
-            type="text" 
-            placeholder="000000" 
-            value={otp}
-            onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-            error={error}
-          />
-
-          <Button variant="hero" size="lg" className="w-full group" disabled={loading}>
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <>
-                Verify
-                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </>
-            )}
-          </Button>
-          
-          <div className="text-center">
-            <button type="button" onClick={() => setStep("request")} className="text-xs text-muted-foreground hover:text-primary transition-colors">
-              Didn't receive the code? Try again
-            </button>
-          </div>
-        </form>
-      )}
-
-      {step === "success" && (
-        <div className="text-center space-y-6 py-4 animate-fade-in">
-          <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-success/20 text-success shadow-glow">
-            <CheckCircle2 className="h-10 w-10" />
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Identity verified successfully.</p>
-          </div>
-          <Button variant="hero" size="lg" className="w-full group" asChild>
-            <Link to="/login">
-              Return to Login
-              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </Button>
+      <div className="flex justify-center mb-8">
+        <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-glow">
+          <KeyRound className="h-8 w-8" />
         </div>
-      )}
+      </div>
+      <form className="space-y-6" onSubmit={handleRequestReset}>
+        <AuthField 
+          label="Email Address" 
+          type="email" 
+          placeholder="you@example.com" 
+          value={email} 
+          onChange={e => setEmail(e.target.value)} 
+        />
+        <Button variant="hero" size="lg" className="w-full py-7" disabled={loading}>
+          {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Send Reset Code"}
+        </Button>
+      </form>
     </AuthShell>
   );
 };
+
+export default ForgotPassword;

@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { toast } from "sonner";
+import api from "../lib/axios";
+import { useAuth } from "./AuthContext";
 
 export type AdminUser = {
   id: string;
@@ -7,7 +9,7 @@ export type AdminUser = {
   email: string;
   balance: number;
   plan: string;
-  status: "Verified" | "Pending KYC" | "Suspended";
+  status: "Verified" | "Pending KYC" | "Suspended" | "Unverified";
   riskLevel: "Low" | "Medium" | "High";
   badges: string[];
   joinedAt: string;
@@ -18,9 +20,11 @@ export type AdminTransaction = {
   userId: string;
   userName: string;
   amount: number;
-  type: "Deposit" | "Withdrawal" | "Trade";
-  status: "Completed" | "Pending" | "Failed";
+  type: string;
+  status: "Completed" | "Pending" | "Failed" | "Rejected";
   date: string;
+  asset?: string;
+  walletAddress?: string;
 };
 
 export type SecurityLog = {
@@ -50,40 +54,20 @@ interface AdminContextState {
 interface AdminContextType {
   state: AdminContextState;
   updateUserStatus: (id: string, status: AdminUser["status"]) => void;
-  updateTransactionStatus: (id: string, status: AdminTransaction["status"]) => void;
+  updateTransactionStatus: (id: string, status: AdminTransaction["status"], finalAmount?: number) => void;
+  editUserBalance: (id: string, balance: number) => Promise<void>;
   toggleTrading: () => void;
   updateSettings: (key: keyof AdminContextState["settings"], value: boolean | number) => void;
 }
 
-const mockUsers: AdminUser[] = [
-  { id: "USR-001", name: "Victor", email: "victor@example.com", balance: 128492.50, plan: "Elite", status: "Verified", riskLevel: "Low", badges: ["VIP"], joinedAt: "2023-10-12T10:00:00Z" },
-  { id: "USR-002", name: "Sarah Jenkins", email: "sarah.j@example.com", balance: 45210.00, plan: "Premium", status: "Verified", riskLevel: "Low", badges: [], joinedAt: "2023-11-05T14:20:00Z" },
-  { id: "USR-003", name: "Michael Chen", email: "m.chen@example.com", balance: 2150.00, plan: "Starter", status: "Pending KYC", riskLevel: "Medium", badges: [], joinedAt: "2024-01-15T09:10:00Z" },
-  { id: "USR-004", name: "Elena Rodriguez", email: "elena.r@example.com", balance: 12400.00, plan: "Basic", status: "Verified", riskLevel: "Low", badges: [], joinedAt: "2023-12-20T16:45:00Z" },
-  { id: "USR-005", name: "David Kim", email: "dkim99@example.com", balance: 8950.00, plan: "Starter", status: "Verified", riskLevel: "Low", badges: [], joinedAt: "2024-02-01T11:30:00Z" },
-  { id: "USR-006", name: "Alex Turner", email: "alex.t@anon.com", balance: 54200.00, plan: "Premium", status: "Suspended", riskLevel: "High", badges: ["Suspicious"], joinedAt: "2024-03-10T08:15:00Z" },
-];
-
-const mockTransactions: AdminTransaction[] = [
-  { id: "TX-1001", userId: "USR-002", userName: "Sarah Jenkins", amount: 5000, type: "Deposit", status: "Completed", date: "2024-04-20T10:15:00Z" },
-  { id: "TX-1002", userId: "USR-006", userName: "Alex Turner", amount: 25000, type: "Withdrawal", status: "Failed", date: "2024-04-21T14:20:00Z" },
-  { id: "TX-1003", userId: "USR-001", userName: "Victor", amount: 12500, type: "Trade", status: "Completed", date: "2024-04-22T09:10:00Z" },
-  { id: "TX-1004", userId: "USR-004", userName: "Elena Rodriguez", amount: 1500, type: "Withdrawal", status: "Pending", date: "2024-04-22T16:45:00Z" },
-];
-
-const mockSecurityLogs: SecurityLog[] = [
-  { id: "SEC-001", event: "Multiple failed login attempts", userId: "USR-003", severity: "Medium", date: "2024-04-21T08:30:00Z" },
-  { id: "SEC-002", event: "Suspicious IP origin for large withdrawal request", userId: "USR-006", severity: "Critical", date: "2024-04-21T14:15:00Z" },
-  { id: "SEC-003", event: "Admin settings modified", severity: "Low", date: "2024-04-20T09:00:00Z" },
-];
-
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export const AdminProvider = ({ children }: { children: ReactNode }) => {
+  const { user } = useAuth();
   const [state, setState] = useState<AdminContextState>({
-    users: mockUsers,
-    transactions: mockTransactions,
-    securityLogs: mockSecurityLogs,
+    users: [],
+    transactions: [],
+    securityLogs: [],
     settings: {
       tradingEnabled: true,
       withdrawalsEnabled: true,
@@ -96,20 +80,71 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
     }
   });
 
-  const updateUserStatus = (id: string, status: AdminUser["status"]) => {
-    setState(prev => ({
-      ...prev,
-      users: prev.users.map(u => u.id === id ? { ...u, status } : u)
-    }));
-    toast.success(`User ${id} status updated to ${status}`);
+  const fetchAdminData = async () => {
+    if (user?.role !== 'admin') return;
+    try {
+      const [usersRes, txsRes] = await Promise.all([
+        api.get('/admin/users'),
+        api.get('/admin/transactions')
+      ]);
+
+      const users: AdminUser[] = usersRes.data.map((u: any) => ({
+        id: u._id,
+        name: `${u.firstName} ${u.lastName}`,
+        email: u.email,
+        balance: u.balance,
+        plan: "Basic",
+        status: u.kycStatus === 'verified' ? "Verified" : u.kycStatus === 'pending' ? "Pending KYC" : "Unverified",
+        riskLevel: "Low",
+        badges: u.role === 'admin' ? ["Admin"] : [],
+        joinedAt: u.createdAt,
+      }));
+
+      const transactions: AdminTransaction[] = txsRes.data.map((t: any) => ({
+        id: t._id,
+        userId: t.user?._id || t.user,
+        userName: t.user ? `${t.user.firstName} ${t.user.lastName}` : 'Unknown User',
+        amount: t.amount,
+        type: t.type.charAt(0).toUpperCase() + t.type.slice(1),
+        status: t.status.charAt(0).toUpperCase() + t.status.slice(1),
+        date: t.createdAt,
+        asset: t.asset,
+        walletAddress: t.walletAddress
+      }));
+
+      setState(prev => ({ ...prev, users, transactions }));
+    } catch (error) {
+      console.error("Failed to fetch admin data", error);
+    }
   };
 
-  const updateTransactionStatus = (id: string, status: AdminTransaction["status"]) => {
-    setState(prev => ({
-      ...prev,
-      transactions: prev.transactions.map(t => t.id === id ? { ...t, status } : t)
-    }));
-    toast.success(`Transaction ${id} marked as ${status}`);
+  useEffect(() => {
+    fetchAdminData();
+  }, [user]);
+
+  const updateUserStatus = async (id: string, status: AdminUser["status"]) => {
+    // Ideally this hits a backend endpoint to update status
+    toast.success(`User status update mocked on frontend for now.`);
+  };
+
+  const updateTransactionStatus = async (id: string, status: AdminTransaction["status"], finalAmount?: number) => {
+    try {
+      await api.put(`/admin/transactions/${id}/status`, { status: status.toLowerCase(), finalAmount });
+      toast.success(`Transaction ${id} marked as ${status}`);
+      fetchAdminData(); // Refresh data
+    } catch (e: any) {
+      toast.error(e.response?.data?.message || "Failed to update transaction status");
+    }
+  };
+
+  const editUserBalance = async (id: string, balance: number) => {
+    try {
+      await api.put(`/admin/users/${id}/balance`, { balance });
+      toast.success(`User balance updated successfully`);
+      fetchAdminData(); // Refresh to get updated balance
+    } catch (e: any) {
+      toast.error(e.response?.data?.message || "Failed to edit balance");
+    }
   };
 
   const toggleTrading = () => {
@@ -136,7 +171,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AdminContext.Provider value={{ state, updateUserStatus, updateTransactionStatus, toggleTrading, updateSettings }}>
+    <AdminContext.Provider value={{ state, updateUserStatus, updateTransactionStatus, editUserBalance, toggleTrading, updateSettings }}>
       {children}
     </AdminContext.Provider>
   );

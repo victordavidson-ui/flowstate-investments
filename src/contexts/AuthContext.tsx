@@ -1,28 +1,21 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import api from "../lib/axios";
 
 export interface User {
+  _id: string;
   firstName: string;
   lastName: string;
   email: string;
-  username: string;
-  phone?: string;
-  dob?: string;
-  address?: string;
-  nationality?: string;
-  kycStatus: 'unverified' | 'pending' | 'verified';
-  isAdmin?: boolean;
-  preferences?: {
-    language: string;
-    currency: string;
-  };
-  is2FAEnabled?: boolean;
-  twoFactorSecret?: string;
+  username?: string;
+  kycStatus: 'unverified' | 'pending' | 'verified' | 'rejected';
+  role: 'user' | 'admin';
+  balance: number;
 }
 
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
-  login: (userData: User) => void;
+  login: (token: string, userData: User) => void;
   updateUser: (updates: Partial<User>) => void;
   logout: () => void;
   loading: boolean;
@@ -36,38 +29,42 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("netflow_user");
-    if (storedUser) {
-      try {
-        const parsed = JSON.parse(storedUser);
-        setUser(parsed);
-        setIsAuthenticated(true);
-      } catch (e) {
-        localStorage.removeItem("netflow_user");
+    const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const { data } = await api.get('/auth/profile');
+          setUser(data);
+          setIsAuthenticated(true);
+        } catch (e) {
+          console.error("Failed to fetch user profile", e);
+          localStorage.removeItem("token");
+          setIsAuthenticated(false);
+        }
       }
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+
+    fetchUser();
   }, []);
 
-  const login = (userData: User) => {
+  const login = (token: string, userData: User) => {
+    localStorage.setItem("token", token);
     setUser(userData);
     setIsAuthenticated(true);
-    localStorage.setItem("netflow_user", JSON.stringify(userData));
   };
 
   const updateUser = (updates: Partial<User>) => {
     setUser(prev => {
       if (!prev) return null;
-      const newUser = { ...prev, ...updates };
-      localStorage.setItem("netflow_user", JSON.stringify(newUser));
-      return newUser;
+      return { ...prev, ...updates };
     });
   };
 
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
-    localStorage.removeItem("netflow_user");
+    localStorage.removeItem("token");
   };
 
   return (

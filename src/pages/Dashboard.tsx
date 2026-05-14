@@ -19,6 +19,10 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { KYCGuard } from "@/components/auth/KYCGuard";
+import { useMarketData } from "@/hooks/useMarketData";
+import { usePortfolio } from "@/contexts/PortfolioContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 const chartData = Array.from({ length: 40 }, (_, i) => ({
@@ -26,10 +30,9 @@ const chartData = Array.from({ length: 40 }, (_, i) => ({
   v: 120000 + Math.sin(i / 3) * 6000 + i * 420 + Math.random() * 2200,
 }));
 
-import { useMarketData } from "@/hooks/useMarketData";
-import { usePortfolio } from "@/contexts/PortfolioContext";
-
 const DashboardPage = () => {
+  const { t } = useTranslation();
+  const { formatValue } = useCurrency();
   const [hidden, setHidden] = useState(false);
   const [timeRange, setTimeRange] = useState("1M");
   const [greeting, setGreeting] = useState("Good day");
@@ -40,10 +43,10 @@ const DashboardPage = () => {
 
   useEffect(() => {
     const hour = new Date().getHours();
-    if (hour < 12) setGreeting("Good morning");
-    else if (hour < 18) setGreeting("Good afternoon");
-    else setGreeting("Good evening");
-  }, []);
+    if (hour < 12) setGreeting(t('dashboard.greeting', "Good morning"));
+    else if (hour < 18) setGreeting(t('dashboard.greeting_afternoon', "Good afternoon"));
+    else setGreeting(t('dashboard.greeting_evening', "Good evening"));
+  }, [t]);
 
   const portfolioAssets = Object.entries(state.holdings).map(([sym, qty]) => {
     const marketAsset = marketAssets.find(a => a.sym === sym);
@@ -76,25 +79,25 @@ const DashboardPage = () => {
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
           <h2 className="text-2xl font-display font-semibold">
-            {greeting}, {user?.firstName || "Investor"} <span className="inline-block animate-bounce ml-1">👋</span>
+            {greeting}, {user?.firstName || t("common.investor", "Investor")} <span className="inline-block animate-bounce ml-1">👋</span>
           </h2>
           <button 
             onClick={toggleDemo}
             className={`px-3 py-1 rounded-full text-xs font-mono font-semibold transition-all border ${state.isDemo ? "bg-warning/20 text-warning border-warning/50" : "bg-primary/10 text-primary border-primary/30"}`}
           >
-            {state.isDemo ? "Demo Account" : "Real Account"}
+            {state.isDemo ? t('dashboard.demo', "Demo Account") : t('dashboard.real', "Real Account")}
           </button>
           {user?.isAdmin && (
             <Link 
               to="/admin/dashboard" 
               className="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-secondary/10 text-secondary border border-secondary/30 hover:bg-secondary/20 transition-all"
             >
-              Admin Portal
+              {t("common.admin_portal")}
             </Link>
           )}
         </div>
         <div className="text-sm text-muted-foreground flex items-center gap-2">
-          <Clock className="h-4 w-4" /> Market opens in 4h 12m
+          <Clock className="h-4 w-4" /> {t('dashboard.market_status', "Market opens in 4h 12m")}
         </div>
       </div>
       {/* Top grid */}
@@ -107,7 +110,7 @@ const DashboardPage = () => {
             <div className="flex items-start justify-between mb-2">
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm text-muted-foreground">Total balance</span>
+                  <span className="text-sm text-muted-foreground">{t('dashboard.balance', "Total balance")}</span>
                   <button
                     onClick={() => setHidden((h) => !h)}
                     className="text-muted-foreground hover:text-foreground transition-colors"
@@ -120,8 +123,7 @@ const DashboardPage = () => {
                     "••••••••"
                   ) : (
                     <span className="flex flex-wrap items-baseline">
-                      ${Math.floor(totalBalance).toLocaleString()}
-                      <span className="text-muted-foreground text-2xl md:text-4xl">.{(totalBalance % 1).toFixed(2).substring(2)}</span>
+                      {formatValue(totalBalance)}
                     </span>
                   )}
                 </div>
@@ -134,7 +136,7 @@ const DashboardPage = () => {
               </div>
               <span className="flex items-center gap-1.5 text-xs font-mono text-success glass rounded-full px-3 py-1">
                 <span className="h-1.5 w-1.5 rounded-full bg-success animate-blink" />
-                Live
+                {t('dashboard.live', "Live")}
               </span>
             </div>
 
@@ -172,7 +174,7 @@ const DashboardPage = () => {
                       borderRadius: "12px",
                       fontSize: "12px",
                     }}
-                    formatter={(v: number) => [`$${v.toFixed(2)}`, "Balance"]}
+                    formatter={(v: number) => [formatValue(v), t('dashboard.balance', "Balance")]}
                     labelFormatter={() => ""}
                   />
                   <Area
@@ -192,7 +194,7 @@ const DashboardPage = () => {
                 className="flex items-center justify-center gap-2 rounded-xl bg-muted/50 hover:bg-primary/15 hover:text-primary border border-border/50 hover:border-primary/40 px-3 py-3 text-sm font-medium transition-all duration-300 active:scale-95"
               >
                 <Plus className="h-4 w-4" />
-                Deposit
+                {t('dashboard.deposit', "Deposit")}
               </button>
               <KYCGuard action="withdraw funds">
                 <button
@@ -200,7 +202,7 @@ const DashboardPage = () => {
                   className="flex items-center justify-center gap-2 rounded-xl bg-muted/50 hover:bg-primary/15 hover:text-primary border border-border/50 hover:border-primary/40 px-3 py-3 text-sm font-medium transition-all duration-300 active:scale-95"
                 >
                   <ArrowDownToLine className="h-4 w-4" />
-                  Withdraw
+                  {t('dashboard.withdraw', "Withdraw")}
                 </button>
               </KYCGuard>
               <KYCGuard action="trade assets">
@@ -209,7 +211,7 @@ const DashboardPage = () => {
                   className="flex items-center justify-center gap-2 rounded-xl bg-muted/50 hover:bg-primary/15 hover:text-primary border border-border/50 hover:border-primary/40 px-3 py-3 text-sm font-medium transition-all duration-300 active:scale-95"
                 >
                   <Repeat className="h-4 w-4" />
-                  Trade
+                  {t('dashboard.trade', "Trade")}
                 </button>
               </KYCGuard>
             </div>
@@ -223,7 +225,7 @@ const DashboardPage = () => {
               <PieChartIcon className="h-5 w-5 text-muted-foreground" />
             </div>
             <div className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-4">
-              Allocation
+              {t('dashboard.allocation', "Allocation")}
             </div>
             <div className="h-32 mt-2 relative flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
@@ -263,7 +265,7 @@ const DashboardPage = () => {
           </div>
           <div className="glass rounded-3xl p-6">
             <div className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-4">
-              Top Movers
+              {t('dashboard.top_movers', "Top Movers")}
             </div>
             <div className="space-y-4">
               {topMovers.map(m => (
@@ -281,7 +283,7 @@ const DashboardPage = () => {
                     <div className={`text-sm font-semibold ${m.change24h >= 0 ? 'text-success' : 'text-destructive'}`}>
                       {m.change24h >= 0 ? '+' : ''}{m.change24h.toFixed(2)}%
                     </div>
-                    <div className="text-xs text-muted-foreground">${m.price.toFixed(2)}</div>
+                    <div className="text-xs text-muted-foreground">{formatValue(m.price)}</div>
                   </div>
                 </div>
               ))}
@@ -296,17 +298,17 @@ const DashboardPage = () => {
                 <ShieldAlert className={`h-5 w-5 ${user?.kycStatus === 'pending' ? 'text-warning' : 'text-primary'} animate-pulse`} />
               </div>
               <h3 className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-4">
-                Verification
+                {t("common.kyc_title")}
               </h3>
               <div className="space-y-4">
                 <div>
                   <div className="text-sm font-bold mb-1">
-                    {user?.kycStatus === 'pending' ? 'Reviewing Documents' : 'Complete Verification'}
+                    {user?.kycStatus === 'pending' ? t("common.kyc_pending") : t("common.kyc_unverified")}
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     {user?.kycStatus === 'pending' 
-                      ? 'Our team is verifying your identity. This usually takes 24h.' 
-                      : 'Unlock trading, withdrawals, and higher limits by verifying your identity.'}
+                      ? t("common.kyc_pending_desc") 
+                      : t("common.kyc_unverified_desc")}
                   </p>
                 </div>
                 {user?.kycStatus === 'unverified' && (
@@ -314,7 +316,7 @@ const DashboardPage = () => {
                     to="/settings" 
                     className="flex items-center justify-between w-full p-3 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-all group/btn"
                   >
-                    <span className="text-xs font-bold uppercase tracking-wider">Start Now</span>
+                    <span className="text-xs font-bold uppercase tracking-wider">{t("common.verify_now")}</span>
                     <ChevronRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
                   </Link>
                 )}
@@ -326,9 +328,9 @@ const DashboardPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         <div className="lg:col-span-2 glass rounded-3xl p-6">
           <div className="flex items-center justify-between mb-5">
-            <h3 className="font-display text-lg font-semibold">Your assets</h3>
+            <h3 className="font-display text-lg font-semibold">{t('dashboard.your_assets', "Your assets")}</h3>
             <button className="text-xs text-primary hover:text-primary-glow flex items-center gap-1">
-              View all <ArrowUpRight className="h-3 w-3" />
+              {t('dashboard.view_all', "View all")} <ArrowUpRight className="h-3 w-3" />
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -356,19 +358,19 @@ const DashboardPage = () => {
                 </div>
                 <div className="flex items-end justify-between">
                   <div>
-                    <div className="text-xs text-muted-foreground mb-0.5">Holdings</div>
+                    <div className="text-xs text-muted-foreground mb-0.5">{t("common.holdings")}</div>
                     <div className="text-sm font-mono">{a.qty} {a.sym}</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-xs text-muted-foreground mb-0.5">Price</div>
+                    <div className="text-xs text-muted-foreground mb-0.5">{t("common.price")}</div>
                     <div className="text-sm font-mono font-semibold">
-                      ${a.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      {formatValue(a.price)}
                     </div>
                   </div>
                   <div className="text-right ml-4">
-                    <div className="text-xs text-muted-foreground mb-0.5">Value</div>
+                    <div className="text-xs text-muted-foreground mb-0.5">{t("common.value")}</div>
                     <div className="text-sm font-mono font-semibold">
-                      ${a.value.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      {formatValue(a.value)}
                     </div>
                   </div>
                 </div>
@@ -380,8 +382,8 @@ const DashboardPage = () => {
         {/* Transactions */}
         <div className="glass rounded-3xl p-6">
           <div className="flex items-center justify-between mb-5">
-            <h3 className="font-display text-lg font-semibold">Recent activity</h3>
-            <button className="text-xs text-primary hover:text-primary-glow">View all</button>
+            <h3 className="font-display text-lg font-semibold">{t('dashboard.activity', "Recent activity")}</h3>
+            <button className="text-xs text-primary hover:text-primary-glow">{t('dashboard.view_all', "View all")}</button>
           </div>
           <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border/60 before:to-transparent">
             {state.transactions.slice(0, 5).map((tx, i) => (
@@ -407,7 +409,7 @@ const DashboardPage = () => {
               </div>
             ))}
             {state.transactions.length === 0 && (
-              <div className="text-center text-sm text-muted-foreground py-8">No recent activity</div>
+              <div className="text-center text-sm text-muted-foreground py-8">{t("common.no_activity")}</div>
             )}
           </div>
         </div>

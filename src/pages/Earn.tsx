@@ -10,6 +10,7 @@ import { CalendarClock, Pause, Play, Plus, Repeat, Sparkles, Trash2, Edit2, Tren
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import { KYCGuard } from "@/components/auth/KYCGuard";
+import { useTranslation } from "react-i18next";
 
 type Cadence = "Daily" | "Weekly" | "Monthly";
 type Plan = {
@@ -27,13 +28,15 @@ type Plan = {
 
 const ASSETS = ["BTC", "ETH", "SOL", "AAPL", "TSLA", "NVDA"];
 
-const initialPlans: Plan[] = [
-  { id: "1", asset: "BTC", amount: 50, cadence: "Weekly", next: "Mon, 9:00", active: true, invested: 1850, target: 5000, projectedApy: 12.5, risk: "Medium" },
-  { id: "2", asset: "ETH", amount: 25, cadence: "Daily", next: "Tomorrow, 9:00", active: true, invested: 920, target: 2000, projectedApy: 14.2, risk: "Medium" },
-  { id: "3", asset: "AAPL", amount: 100, cadence: "Monthly", next: "May 1", active: false, invested: 400, target: 1200, projectedApy: 8.4, risk: "Low" },
-];
-
 const Earn = () => {
+  const { t } = useTranslation();
+
+  const initialPlans: Plan[] = [
+    { id: "1", asset: "BTC", amount: 50, cadence: "Weekly", next: "Mon, 9:00", active: true, invested: 1850, target: 5000, projectedApy: 12.5, risk: "Medium" },
+    { id: "2", asset: "ETH", amount: 25, cadence: "Daily", next: "Tomorrow, 9:00", active: true, invested: 920, target: 2000, projectedApy: 14.2, risk: "Medium" },
+    { id: "3", asset: "AAPL", amount: 100, cadence: "Monthly", next: "May 1", active: false, invested: 400, target: 1200, projectedApy: 8.4, risk: "Low" },
+  ];
+
   const [plans, setPlans] = useState<Plan[]>(initialPlans);
   const [asset, setAsset] = useState("BTC");
   const [amount, setAmount] = useState("50");
@@ -43,12 +46,12 @@ const Earn = () => {
   const createOrUpdate = () => {
     const amt = parseFloat(amount);
     if (!amt || amt <= 0) {
-      toast.error("Enter a valid amount");
+      toast.error(t("errors.invalid_amount", "Enter a valid amount"));
       return;
     }
     if (editingId) {
       setPlans(p => p.map(pl => pl.id === editingId ? { ...pl, asset, amount: amt, cadence } : pl));
-      toast.success(`Plan updated`);
+      toast.success(t("messages.plan_updated"));
       setEditingId(null);
     } else {
       const newPlan: Plan = {
@@ -64,7 +67,7 @@ const Earn = () => {
         risk: "Medium"
       };
       setPlans((p) => [newPlan, ...p]);
-      toast.success(`Auto-invest plan created: $${amt} ${cadence.toLowerCase()} → ${asset}`);
+      toast.success(t("messages.plan_created", { amount: amt, cadence: cadence.toLowerCase(), asset }));
     }
   };
 
@@ -86,9 +89,9 @@ const Earn = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">Auto-invest</h1>
+        <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">{t('earn.title')}</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Build wealth on autopilot with recurring buy plans. Dollar-cost average into any asset.
+          {t('earn.subtitle')}
         </p>
       </div>
 
@@ -100,11 +103,11 @@ const Earn = () => {
               <div className="h-9 w-9 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
                 <Sparkles className="h-4 w-4 text-primary-foreground" />
               </div>
-              <h2 className="font-display text-lg font-semibold">New plan</h2>
+              <h2 className="font-display text-lg font-semibold">{t('earn.new_plan')}</h2>
             </div>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Asset</Label>
+                <Label>{t('common.asset')}</Label>
                 <Select value={asset} onValueChange={setAsset}>
                   <SelectTrigger className="bg-muted/40 border-border/60">
                     <SelectValue />
@@ -119,7 +122,7 @@ const Earn = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Amount (USD)</Label>
+                <Label>{t('common.amount')} (USD)</Label>
                 <Input
                   type="number"
                   value={amount}
@@ -128,29 +131,29 @@ const Earn = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Cadence</Label>
+                <Label>{t('earn.cadence')}</Label>
                 <Tabs value={cadence} onValueChange={(v) => setCadence(v as Cadence)}>
                   <TabsList className="grid grid-cols-3 w-full bg-muted/40">
-                    <TabsTrigger value="Daily">Daily</TabsTrigger>
-                    <TabsTrigger value="Weekly">Weekly</TabsTrigger>
-                    <TabsTrigger value="Monthly">Monthly</TabsTrigger>
+                    <TabsTrigger value="Daily">{t('earn.daily')}</TabsTrigger>
+                    <TabsTrigger value="Weekly">{t('earn.weekly')}</TabsTrigger>
+                    <TabsTrigger value="Monthly">{t('earn.monthly')}</TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>
               <Button variant="hero" className="w-full" onClick={createOrUpdate}>
                 {editingId ? <Edit2 className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-                {editingId ? "Update plan" : "Create plan"}
+                {editingId ? t('earn.update_plan') : t('earn.create_plan')}
               </Button>
               {editingId && (
                 <Button variant="ghost" className="w-full" onClick={() => {
                   setEditingId(null);
                   setAmount("50");
                 }}>
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
               )}
               <div className="glass rounded-xl p-3 text-xs text-muted-foreground">
-                Estimated monthly contribution from active plans:{" "}
+                {t('earn.est_monthly')}:{" "}
                 <span className="font-mono font-semibold text-foreground">
                   ${totalMonthly.toLocaleString()}
                 </span>
@@ -164,16 +167,16 @@ const Earn = () => {
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
               <Repeat className="h-4 w-4 text-primary" />
-              <h2 className="font-display text-lg font-semibold">Your plans</h2>
+              <h2 className="font-display text-lg font-semibold">{t('earn.your_plans')}</h2>
             </div>
             <Badge variant="outline" className="border-primary/30 text-primary">
-              {plans.filter((p) => p.active).length} active
+              {plans.filter((p) => p.active).length} {t('common.active')}
             </Badge>
           </div>
 
           {plans.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground text-sm">
-              No plans yet. Create your first auto-invest plan to get started.
+              {t('earn.no_plans')}
             </div>
           ) : (
             <div className="space-y-3">
@@ -189,33 +192,33 @@ const Earn = () => {
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-semibold">{p.asset}</span>
                       <Badge variant="outline" className="border-border/60 text-xs">
-                        {p.cadence}
+                        {t(`earn.${p.cadence.toLowerCase()}`)}
                       </Badge>
                       {p.active ? (
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-success">● Active</span>
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-success">● {t('common.active')}</span>
                       ) : (
                         <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                          ● Paused
+                          ● {t('common.paused')}
                         </span>
                       )}
                     </div>
                     <div className="text-xs text-muted-foreground mt-1 flex items-center gap-3 flex-wrap">
-                      <span className="font-mono">${p.amount} / {p.cadence.toLowerCase()}</span>
+                      <span className="font-mono">${p.amount} / {t(`earn.${p.cadence.toLowerCase()}`).toLowerCase()}</span>
                       <span className="flex items-center gap-1">
-                        <CalendarClock className="h-3 w-3" /> Next: {p.next}
+                        <CalendarClock className="h-3 w-3" /> {t('earn.next')}: {p.next}
                       </span>
                       <span className="flex items-center gap-1 text-success">
-                        <TrendingUp className="h-3 w-3" /> {p.projectedApy.toFixed(1)}% APY
+                        <TrendingUp className="h-3 w-3" /> {p.projectedApy.toFixed(1)}% {t('earn.apy')}
                       </span>
                       <span className={`flex items-center gap-1 ${p.risk === "Low" ? "text-success" : p.risk === "Medium" ? "text-warning" : "text-destructive"}`}>
-                        {p.risk === "Low" ? <ShieldCheck className="h-3 w-3" /> : <ShieldAlert className="h-3 w-3" />} {p.risk} Risk
+                        {p.risk === "Low" ? <ShieldCheck className="h-3 w-3" /> : <ShieldAlert className="h-3 w-3" />} {t(`common.${p.risk.toLowerCase()}`)} {t('earn.risk')}
                       </span>
                     </div>
                     
                     <div className="mt-3 space-y-1.5">
                       <div className="flex justify-between text-[10px] font-mono text-muted-foreground">
-                        <span>${p.invested.toLocaleString()} invested</span>
-                        <span>Target: ${p.target.toLocaleString()}</span>
+                        <span>${p.invested.toLocaleString()} {t('earn.invested')}</span>
+                        <span>{t('earn.target')}: ${p.target.toLocaleString()}</span>
                       </div>
                       <Progress value={(p.invested / p.target) * 100} className="h-1.5" />
                     </div>
@@ -223,7 +226,7 @@ const Earn = () => {
                   <div className="flex items-center gap-2 mt-4 sm:mt-0">
                     <Button size="sm" variant="glass" onClick={() => toggle(p.id)}>
                       {p.active ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
-                      <span className="sr-only md:not-sr-only md:ml-1">{p.active ? "Pause" : "Resume"}</span>
+                      <span className="sr-only md:not-sr-only md:ml-1">{p.active ? t('common.pause') : t('common.resume')}</span>
                     </Button>
                     <Button size="sm" variant="ghost" onClick={() => startEdit(p)}>
                       <Edit2 className="h-3.5 w-3.5" />

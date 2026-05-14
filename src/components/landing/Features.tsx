@@ -8,59 +8,38 @@ import {
   Wallet,
   Zap,
 } from "lucide-react";
-
-const features = [
-  {
-    icon: LineChart,
-    title: "Pro-grade charts",
-    description: "Candlestick, depth, and volume views with 50+ indicators. Built for speed.",
-    accent: "primary",
-  },
-  {
-    icon: Brain,
-    title: "AI investment signals",
-    description: "Get personalized suggestions powered by real-time market intelligence.",
-    accent: "secondary",
-  },
-  {
-    icon: Copy,
-    title: "Copy top traders",
-    description: "Mirror strategies from verified investors with proven track records.",
-    accent: "primary",
-  },
-  {
-    icon: Repeat,
-    title: "Auto-invest plans",
-    description: "Set daily or weekly recurring buys. Dollar-cost averaging on autopilot.",
-    accent: "secondary",
-  },
-  {
-    icon: Wallet,
-    title: "Unified portfolio",
-    description: "Crypto, stocks, ETFs, and cash — all in one elegant dashboard.",
-    accent: "primary",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Vault-level security",
-    description: "Cold storage, biometric login, and full KYC compliance worldwide.",
-    accent: "secondary",
-  },
-  {
-    icon: Bell,
-    title: "Smart alerts",
-    description: "Price targets, news, and market events delivered the moment they matter.",
-    accent: "primary",
-  },
-  {
-    icon: Zap,
-    title: "Lightning execution",
-    description: "Sub-50ms order routing across global liquidity venues.",
-    accent: "secondary",
-  },
-];
+import { useTranslation } from "react-i18next";
 
 export const Features = () => {
+  const { t } = useTranslation();
+
+  const features = [
+    {
+      icon: LineChart,
+      title: t("features.f1_title", "AI Portfolios"),
+      description: t("features.f1_desc", "Smart algorithms that rebalance your holdings automatically based on market conditions."),
+      accent: "primary",
+    },
+    {
+      icon: Zap,
+      title: t("features.f2_title", "Zero Commission"),
+      description: t("features.f2_desc", "Trade thousands of assets with zero fees. We believe in accessible investing for everyone."),
+      accent: "secondary",
+    },
+    {
+      icon: Copy,
+      title: t("features.f3_title", "Copy Trading"),
+      description: t("features.f3_desc", "Automatically follow the trades of top-performing investors in our community."),
+      accent: "primary",
+    },
+    {
+      icon: ShieldCheck,
+      title: t("features.f4_title", "Bank-Grade Security"),
+      description: t("features.f4_desc", "Your assets are protected by multi-sig cold storage and state-of-the-art encryption."),
+      accent: "secondary",
+    },
+  ];
+
   return (
     <section id="markets" className="py-24 md:py-32 relative">
       <div className="glow-orb h-[400px] w-[400px] bg-secondary/20 top-1/3 -left-20" />
@@ -69,16 +48,16 @@ export const Features = () => {
         <div className="max-w-2xl mx-auto text-center mb-16 md:mb-20">
           <div className="inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 mb-6">
             <span className="text-xs font-mono uppercase tracking-wider text-primary">
-              Platform
+              {t("nav.markets", "Platform")}
             </span>
           </div>
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-            Everything you need.
+            {t("features.title", "Built for the")}
             <br />
-            <span className="text-gradient">Nothing you don't.</span>
+            <span className="text-gradient">{t("features.title_highlight", "Modern Investor")}</span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            A complete trading stack designed for clarity, speed, and confidence.
+            {t("features.subtitle", "Everything you need to grow your wealth in the digital age, all in one place.")}
           </p>
         </div>
 

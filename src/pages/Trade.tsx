@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
-import { Bar, BarChart, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis, Cell } from "recharts";
+import { Bar, BarChart, CartesianGrid, ComposedChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Cell } from "recharts";
 import { Bitcoin, TrendingUp, TrendingDown, Star, Zap, History } from "lucide-react";
 import { usePortfolio } from "@/contexts/PortfolioContext";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { KYCGuard } from "@/components/auth/KYCGuard";
+import { useTranslation } from "react-i18next";
 
 // Mock OHLC candles
 type Candle = { t: number; o: number; h: number; l: number; c: number; v: number };
@@ -44,8 +45,6 @@ const CandleBar = (props: any) => {
   const color = up ? "hsl(152 80% 50%)" : "hsl(0 85% 60%)";
   const bodyTop = y;
   const bodyHeight = Math.max(height, 1);
-  // Wick positions calculated from data range on axis - recharts gives us y,height for [low,high]
-  // We'll overlay body using open/close via a proportional calc
   const range = payload.h - payload.l || 1;
   const bodyY = y + ((payload.h - Math.max(payload.o, payload.c)) / range) * height;
   const bodyH = Math.max(((Math.abs(payload.o - payload.c)) / range) * height, 1);
@@ -65,6 +64,7 @@ const CandleBar = (props: any) => {
 };
 
 const TradePage = () => {
+  const { t } = useTranslation();
   const [side, setSide] = useState<"buy" | "sell">("buy");
   const [orderType, setOrderType] = useState<"market" | "limit">("market");
   const [price, setPrice] = useState("67432.18");
@@ -76,7 +76,7 @@ const TradePage = () => {
   const last = candles[candles.length - 1];
   const change = ((last.c - candles[0].o) / candles[0].o) * 100;
 
-  const riskLabel = risk < 33 ? "Low" : risk < 66 ? "Medium" : "High";
+  const riskLabel = risk < 33 ? t('common.low') : risk < 66 ? t('common.medium') : t('common.high');
   const riskColor =
     risk < 33 ? "hsl(152 80% 50%)" : risk < 66 ? "hsl(40 100% 60%)" : "hsl(0 85% 60%)";
 
@@ -104,12 +104,12 @@ const TradePage = () => {
                 to="/history"
                 className="ml-auto hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border/50 text-xs font-mono text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors"
               >
-                <History className="h-4 w-4" /> Trade History
+                <History className="h-4 w-4" /> {t('trade.history')}
               </Link>
               <div className="grid grid-cols-2 md:flex md:items-center md:gap-8 gap-3">
                 <div>
                   <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                    Last price
+                    {t('trade.last_price')}
                   </div>
                   <div className={`font-mono text-lg font-semibold ${change >= 0 ? "text-success" : "text-destructive"}`}>
                     ${last.c.toFixed(2)}
@@ -117,7 +117,7 @@ const TradePage = () => {
                 </div>
                 <div>
                   <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                    24h change
+                    {t('trade.change_24h')}
                   </div>
                   <div className={`font-mono text-sm flex items-center gap-1 ${change >= 0 ? "text-success" : "text-destructive"}`}>
                     {change >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
@@ -126,13 +126,13 @@ const TradePage = () => {
                 </div>
                 <div>
                   <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                    24h high
+                    {t('trade.high_24h')}
                   </div>
                   <div className="font-mono text-sm">${Math.max(...candles.map((c) => c.h)).toFixed(2)}</div>
                 </div>
                 <div>
                   <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                    24h low
+                    {t('trade.low_24h')}
                   </div>
                   <div className="font-mono text-sm">${Math.min(...candles.map((c) => c.l)).toFixed(2)}</div>
                 </div>
@@ -158,7 +158,7 @@ const TradePage = () => {
                 ))}
               </div>
               <div className="text-xs font-mono text-muted-foreground hidden md:block">
-                Candles · Volume
+                {t('trade.candles')} · {t('common.volume')}
               </div>
             </div>
 
@@ -186,7 +186,6 @@ const TradePage = () => {
                     formatter={(v: number, name: string) => [v.toFixed(2), name.toUpperCase()]}
                     labelFormatter={() => ""}
                   />
-                  {/* Invisible high-low bar to create candle shape */}
                   <Bar dataKey="h" shape={(p: any) => <CandleBar {...p} />} />
                 </ComposedChart>
               </ResponsiveContainer>
@@ -209,7 +208,7 @@ const TradePage = () => {
 
           {/* Order book (mobile) */}
           <div className="xl:hidden glass rounded-3xl p-4">
-            <OrderBookPanel lastPrice={last.c} />
+            <OrderBookPanel lastPrice={last.c} t={t} />
           </div>
         </div>
       </KYCGuard>
@@ -227,7 +226,7 @@ const TradePage = () => {
                   : "text-muted-foreground"
               }`}
             >
-              Buy
+              {t('common.buy')}
             </button>
             <button
               onClick={() => setSide("sell")}
@@ -237,22 +236,22 @@ const TradePage = () => {
                   : "text-muted-foreground"
               }`}
             >
-              Sell
+              {t('common.sell')}
             </button>
           </div>
 
           <div className="flex items-center gap-1 mb-4">
-            {(["market", "limit"] as const).map((t) => (
+            {(["market", "limit"] as const).map((ot) => (
               <button
-                key={t}
-                onClick={() => setOrderType(t)}
+                key={ot}
+                onClick={() => setOrderType(ot)}
                 className={`px-3 py-1 rounded-md text-xs font-medium uppercase tracking-wider transition-all ${
-                  orderType === t
+                  orderType === ot
                     ? "text-primary bg-primary/10"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {t}
+                {t(`common.${ot}`)}
               </button>
             ))}
           </div>
@@ -261,7 +260,7 @@ const TradePage = () => {
             {orderType === "limit" && (
               <div>
                 <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1.5 block">
-                  Price (USDT)
+                  {t('common.price')} (USDT)
                 </label>
                 <input
                   value={price}
@@ -272,7 +271,7 @@ const TradePage = () => {
             )}
             <div>
               <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1.5 block">
-                Amount (BTC)
+                {t('common.amount')} (BTC)
               </label>
               <input
                 value={amount}
@@ -297,7 +296,7 @@ const TradePage = () => {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
-                  Risk level
+                  {t('trade.risk_level')}
                 </label>
                 <span
                   className="text-xs font-mono font-semibold"
@@ -316,25 +315,25 @@ const TradePage = () => {
                 style={{ accentColor: riskColor }}
               />
               <div className="flex justify-between text-[10px] font-mono text-muted-foreground mt-1">
-                <span>Low</span>
-                <span>Medium</span>
-                <span>High</span>
+                <span>{t('common.low')}</span>
+                <span>{t('common.medium')}</span>
+                <span>{t('common.high')}</span>
               </div>
             </div>
 
             <div className="glass rounded-xl p-3 space-y-1.5">
               <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Available</span>
+                <span className="text-muted-foreground">{t('common.available')}</span>
                 <span className="font-mono">{state.balanceUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })} USDT</span>
               </div>
               <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Est. total</span>
+                <span className="text-muted-foreground">{t('trade.est_total')}</span>
                 <span className="font-mono">
                   ${((+amount || 0) * +price).toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Fee</span>
+                <span className="text-muted-foreground">{t('common.fee')}</span>
                 <span className="font-mono">0.10%</span>
               </div>
             </div>
@@ -344,7 +343,7 @@ const TradePage = () => {
                 if (!amount || isNaN(+amount)) return;
                 const total = (+amount * +price).toFixed(2);
                 if (side === "buy" && +total > state.balanceUSD) {
-                  toast.error("Insufficient USDT balance");
+                  toast.error(t("errors.insufficient_usdt", "Insufficient USDT balance"));
                   return;
                 }
                 executeTrade({
@@ -356,7 +355,7 @@ const TradePage = () => {
                   total: total,
                   status: "Filled"
                 });
-                toast.success(`${side === "buy" ? "Bought" : "Sold"} ${amount} BTC successfully`);
+                toast.success(t(`messages.${side}_success`, { amount, asset: 'BTC' }));
                 setAmount("");
               }}
               className={`w-full rounded-xl py-3 text-sm font-semibold transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 ${
@@ -366,30 +365,30 @@ const TradePage = () => {
               }`}
             >
               <Zap className="h-4 w-4" />
-              {side === "buy" ? "Buy" : "Sell"} BTC
+              {side === "buy" ? t('trade.buy_asset', { asset: 'BTC' }) : t('trade.sell_asset', { asset: 'BTC' })}
             </button>
           </div>
         </div>
 
         {/* Order book (desktop) */}
         <div className="hidden xl:block glass rounded-3xl p-4">
-          <OrderBookPanel lastPrice={last.c} />
+          <OrderBookPanel lastPrice={last.c} t={t} />
         </div>
       </div>
     </div>
   );
 };
 
-const OrderBookPanel = ({ lastPrice }: { lastPrice: number }) => {
+const OrderBookPanel = ({ lastPrice, t }: { lastPrice: number, t: any }) => {
   const maxAskTotal = orderBook.asks.reduce((max, a) => Math.max(max, a.total), 0);
   const maxBidTotal = orderBook.bids.reduce((max, b) => Math.max(max, b.total), 0);
   return (
     <>
-      <h3 className="font-display font-semibold mb-3">Order book</h3>
+      <h3 className="font-display font-semibold mb-3">{t('trade.order_book')}</h3>
       <div className="grid grid-cols-3 text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-2">
-        <div>Price</div>
-        <div className="text-right">Size</div>
-        <div className="text-right">Total</div>
+        <div>{t('common.price')}</div>
+        <div className="text-right">{t('common.size')}</div>
+        <div className="text-right">{t('common.total')}</div>
       </div>
       {/* Asks */}
       <div className="space-y-0.5 mb-2">
@@ -410,7 +409,7 @@ const OrderBookPanel = ({ lastPrice }: { lastPrice: number }) => {
         <div className="font-mono text-base font-semibold text-success">
           ${lastPrice.toFixed(2)}
         </div>
-        <div className="text-[10px] text-muted-foreground">Last price</div>
+        <div className="text-[10px] text-muted-foreground">{t('trade.last_price')}</div>
       </div>
       {/* Bids */}
       <div className="space-y-0.5">

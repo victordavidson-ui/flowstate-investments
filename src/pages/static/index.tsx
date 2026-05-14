@@ -102,6 +102,7 @@ export const MarketsLandingPage = make({
 
 // ===== COMPANY =====
 export const AboutPage = make({
+  keyPrefix: "static.about",
   eyebrow: "Company",
   title: "Rewriting the rules of global finance",
   subtitle: "NETFLOW is building the unified infrastructure for the next billion investors, combining institutional-grade security with a seamless consumer experience.",

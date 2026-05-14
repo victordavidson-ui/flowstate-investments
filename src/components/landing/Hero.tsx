@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play, Sparkles } from "lucide-react";
 import heroChart from "@/assets/hero-chart.jpg";
+import { useTranslation } from "react-i18next";
 
 export const Hero = () => {
+  const { t } = useTranslation();
   return (
     <section className="relative pt-32 md:pt-40 pb-20 md:pb-32 overflow-hidden">
       {/* Background orbs */}
@@ -16,17 +18,16 @@ export const Hero = () => {
           <div className="inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 mb-8 animate-fade-in">
             <Sparkles className="h-3.5 w-3.5 text-primary" />
             <span className="text-xs font-medium text-muted-foreground">
-              AI-powered investing · Now live
+              {t('hero.badge', 'Flowstate Investments')}
             </span>
             <span className="h-1.5 w-1.5 rounded-full bg-success animate-blink" />
           </div>
 
           {/* Headline */}
           <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] mb-6 animate-fade-in-up">
-            Smart Investing
+            {t('hero.title', 'Smart Investing')}
             <br />
-            Starts With{" "}
-            <span className="text-gradient-primary inline-block">NETFLOW</span>
+            <span className="text-gradient-primary inline-block">{t('hero.title_highlight', 'Starts With NETFLOW')}</span>
           </h1>
 
           {/* Subheadline */}
@@ -34,8 +35,7 @@ export const Hero = () => {
             className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up"
             style={{ animationDelay: "0.15s" }}
           >
-            Trade crypto, stocks, and ETFs from one elegant platform.
-            Real-time markets, AI insights, and copy trading — built for the next generation of investors.
+            {t('hero.subtitle', 'Trade crypto, stocks, and ETFs from one elegant platform. Real-time markets, AI insights, and copy trading — built for the next generation of investors.')}
           </p>
 
           {/* CTAs */}
@@ -45,14 +45,14 @@ export const Hero = () => {
           >
             <Button variant="hero" size="xl" className="group" asChild>
               <a href="/signup">
-                Start Investing
+                {t('hero.cta_primary', 'Start Trading Now')}
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </a>
             </Button>
             <Button variant="glass" size="xl" className="group" asChild>
               <a href="/markets">
                 <Play className="h-4 w-4" />
-                View Markets
+                {t('hero.cta_secondary', 'View Markets')}
               </a>
             </Button>
           </div>

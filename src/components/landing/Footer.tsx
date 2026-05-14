@@ -1,53 +1,40 @@
 import { Zap, ChevronUp, Twitter, Github, Linkedin, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
-
-const groups: { title: string; links: { label: string; to: string }[] }[] = [
-  {
-    title: "Product",
-    links: [
-      { label: "Markets", to: "/markets-overview" },
-      { label: "Crypto Trading", to: "/crypto" },
-      { label: "Stock Market", to: "/stocks" },
-      { label: "Auto-invest Plans", to: "/auto-invest" },
-      { label: "Copy Trading", to: "/copy-trading" },
-      { label: "Portfolio Analytics", to: "/dashboard" },
-    ],
-  },
-  {
-    title: "Company",
-    links: [
-      { label: "About Netflow", to: "/about" },
-      { label: "Our Story", to: "/about" },
-      { label: "Careers", to: "/careers" },
-      { label: "Press & News", to: "/press" },
-      { label: "Official Blog", to: "/blog" },
-      { label: "Security First", to: "/security" },
-    ],
-  },
-  {
-    title: "Resources",
-    links: [
-      { label: "Help Center", to: "/help" },
-      { label: "API Documentation", to: "/api" },
-      { label: "System Status", to: "/status" },
-      { label: "Fee Schedule", to: "/fees" },
-      { label: "Tax Reporting", to: "/tax" },
-      { label: "Community", to: "/blog" },
-    ],
-  },
-  {
-    title: "Legal",
-    links: [
-      { label: "Terms of Service", to: "/terms" },
-      { label: "Privacy Policy", to: "/privacy" },
-      { label: "Risk Disclosures", to: "/disclosures" },
-      { label: "Global Licenses", to: "/licenses" },
-      { label: "Cookie Policy", to: "/cookies" },
-    ],
-  },
-];
+import { useTranslation } from "react-i18next";
 
 export const Footer = () => {
+  const { t } = useTranslation();
+
+  const groups: { title: string; links: { label: string; to: string }[] }[] = [
+    {
+      title: t("footer.platform", "Platform"),
+      links: [
+        { label: t("nav.markets"), to: "/markets" },
+        { label: t("nav.trade"), to: "/trade" },
+        { label: t("nav.copy"), to: "/copy" },
+        { label: t("nav.dashboard"), to: "/dashboard" },
+      ],
+    },
+    {
+      title: t("footer.company", "Company"),
+      links: [
+        { label: t("nav.about"), to: "/about" },
+        { label: t("footer.blog", "Blog"), to: "/blog" },
+        { label: t("footer.careers", "Careers"), to: "/careers" },
+        { label: t("footer.press", "Press"), to: "/press" },
+      ],
+    },
+    {
+      title: t("footer.legal", "Legal"),
+      links: [
+        { label: t("footer.terms", "Terms"), to: "/terms" },
+        { label: t("footer.privacy", "Privacy"), to: "/privacy" },
+        { label: t("footer.licenses", "Licenses"), to: "/licenses" },
+        { label: t("footer.cookies", "Cookies"), to: "/cookies" },
+      ],
+    },
+  ];
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -66,7 +53,7 @@ export const Footer = () => {
               </span>
             </Link>
             <p className="text-base text-muted-foreground max-w-sm leading-relaxed">
-              The next generation of investing. Trade crypto, stocks, and ETFs from one intuitive interface. Built for speed, security, and everyone.
+              {t("footer.desc", "Netflow is the world's most advanced multi-asset investment platform, powered by AI and community insights.")}
             </p>
             <div className="flex items-center gap-4">
               <SocialLink icon={Twitter} href="#" />
@@ -101,10 +88,7 @@ export const Footer = () => {
         <div className="flex flex-col md:flex-row items-center justify-between gap-8 pt-10 border-t border-border/40">
           <div className="flex flex-col gap-2">
             <p className="text-sm text-muted-foreground font-mono">
-              © {new Date().getFullYear()} NETFLOW technologies. All rights reserved.
-            </p>
-            <p className="text-[10px] text-muted-foreground/60 uppercase tracking-widest font-mono">
-              Secured by bank-grade encryption
+              © {new Date().getFullYear()} NETFLOW. {t("footer.all_rights", "All rights reserved.")}
             </p>
           </div>
           
@@ -112,16 +96,8 @@ export const Footer = () => {
             onClick={scrollToTop}
             className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors group"
           >
-            Back to Top <ChevronUp className="h-4 w-4 group-hover:-translate-y-1 transition-transform" />
+            {t("common.back", "Back to Top")} <ChevronUp className="h-4 w-4 group-hover:-translate-y-1 transition-transform" />
           </button>
-        </div>
-
-        <div className="mt-12 p-6 glass rounded-3xl border border-border/40">
-          <p className="text-[11px] text-muted-foreground leading-relaxed text-center">
-            Investing in digital assets and securities involves significant risk and can result in the loss of your invested capital. 
-            Content on this platform is for informational purposes only and does not constitute financial advice. 
-            NETFLOW is a licensed and regulated financial services provider. Please read our full Risk Disclosures before trading.
-          </p>
         </div>
       </div>
     </footer>

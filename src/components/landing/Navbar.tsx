@@ -1,18 +1,34 @@
 import { Button } from "@/components/ui/button";
-import { Menu, X, Zap } from "lucide-react";
+import { Menu, X, Zap, Globe, Coins } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
-const sectionLinks = [
-  { label: "Markets", to: "/markets-overview" },
-  { label: "Trade", to: "/crypto" },
-  { label: "Earn", to: "/auto-invest" },
-  { label: "Company", to: "/about" },
-];
+import { useTranslation } from "react-i18next";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 export const Navbar = () => {
+  const { t, i18n } = useTranslation();
+  const { currency, setCurrency } = useCurrency();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+
+  const sectionLinks = [
+    { label: t('nav.markets', 'Markets'), to: "/markets-overview" },
+    { label: t('nav.trade', 'Trade'), to: "/crypto" },
+    { label: t('nav.earn', 'Earn'), to: "/auto-invest" },
+    { label: t('nav.about', 'About'), to: "/about" },
+  ];
+
+  const toggleLanguage = () => {
+    const current = i18n.language || 'en';
+    const nextLang = current.startsWith('en') ? 'es' : current.startsWith('es') ? 'fr' : 'en';
+    i18n.changeLanguage(nextLang);
+  };
+
+  const toggleCurrency = () => {
+    const currencies: ('USD' | 'EUR' | 'GBP' | 'JPY' | 'CAD' | 'NGN' | 'ZAR')[] = ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'NGN', 'ZAR'];
+    const nextIdx = (currencies.indexOf(currency) + 1) % currencies.length;
+    setCurrency(currencies[nextIdx]);
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -62,11 +78,27 @@ export const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-2">
+            <button 
+              onClick={toggleLanguage}
+              className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/40 rounded-lg transition-colors flex items-center gap-1 text-xs font-mono uppercase"
+              title="Change Language"
+            >
+              <Globe className="h-4 w-4" />
+              <span className="hidden md:inline">{i18n.language?.substring(0, 2) || 'en'}</span>
+            </button>
+            <button 
+              onClick={toggleCurrency}
+              className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/40 rounded-lg transition-colors flex items-center gap-1 text-xs font-mono uppercase"
+              title="Change Currency"
+            >
+              <Coins className="h-4 w-4" />
+              <span className="hidden md:inline">{currency}</span>
+            </button>
             <Button variant="ghost" size="sm" className="hidden md:inline-flex text-muted-foreground hover:text-foreground" asChild>
-              <Link to="/login">Sign in</Link>
+              <Link to="/login">{t('nav.login', 'Sign in')}</Link>
             </Button>
             <Button variant="hero" size="sm" asChild>
-              <Link to="/signup">Get started</Link>
+              <Link to="/signup">{t('nav.signup', 'Get started')}</Link>
             </Button>
             <button
               type="button"
@@ -100,11 +132,11 @@ export const Navbar = () => {
                 onClick={() => setOpen(false)}
                 className="px-3 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-colors"
               >
-                Sign in
+                {t('nav.login', 'Sign in')}
               </Link>
               <Button variant="hero" size="sm" className="mt-1" asChild>
                 <Link to="/signup" onClick={() => setOpen(false)}>
-                  Get started
+                  {t('nav.signup', 'Get started')}
                 </Link>
               </Button>
             </div>

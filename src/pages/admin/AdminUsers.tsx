@@ -4,11 +4,15 @@ import { useAdmin, AdminUser } from "@/contexts/AdminContext";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useTranslation } from "react-i18next";
 
 export const AdminUsers = () => {
-  const { state, updateUserStatus } = useAdmin();
+  const { state, updateUserStatus, editUserBalance } = useAdmin();
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
+  const [editingBalance, setEditingBalance] = useState("");
+  const [isEditingBalance, setIsEditingBalance] = useState(false);
+  const { t } = useTranslation();
 
   const filteredUsers = state.users.filter(u => 
     u.name.toLowerCase().includes(search.toLowerCase()) || 
@@ -20,22 +24,22 @@ export const AdminUsers = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="font-display text-3xl font-bold">User Management</h1>
-          <p className="text-muted-foreground mt-1">Monitor, verify, and control all platform accounts.</p>
+          <h1 className="font-display text-3xl font-bold">{t("admin.manage_users")}</h1>
+          <p className="text-muted-foreground mt-1">{t("admin.users_desc", "Monitor, verify, and control all platform accounts.")}</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input 
               type="text" 
-              placeholder="Search by name, email, ID..." 
+              placeholder={t("admin.search_users_placeholder", "Search by name, email, ID...")} 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full bg-muted/40 border border-border/60 rounded-xl pl-9 pr-4 py-2 text-sm focus:outline-none focus:border-primary/50"
             />
           </div>
           <button className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted/50 border border-border/50 text-sm font-medium hover:bg-muted transition-colors">
-            <Filter className="h-4 w-4" /> Filter
+            <Filter className="h-4 w-4" /> {t("common.all")}
           </button>
         </div>
       </div>
@@ -45,11 +49,11 @@ export const AdminUsers = () => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-muted/20 border-b border-border/50">
-                <th className="p-4 text-xs font-mono uppercase tracking-wider text-muted-foreground font-medium">User</th>
-                <th className="p-4 text-xs font-mono uppercase tracking-wider text-muted-foreground font-medium">Status / KYC</th>
-                <th className="p-4 text-xs font-mono uppercase tracking-wider text-muted-foreground font-medium">Balance</th>
-                <th className="p-4 text-xs font-mono uppercase tracking-wider text-muted-foreground font-medium">Risk Level</th>
-                <th className="p-4 text-xs font-mono uppercase tracking-wider text-muted-foreground font-medium text-right">Actions</th>
+                <th className="p-4 text-xs font-mono uppercase tracking-wider text-muted-foreground font-medium">{t("admin.user")}</th>
+                <th className="p-4 text-xs font-mono uppercase tracking-wider text-muted-foreground font-medium">{t("admin.status_kyc")}</th>
+                <th className="p-4 text-xs font-mono uppercase tracking-wider text-muted-foreground font-medium">{t("common.balance")}</th>
+                <th className="p-4 text-xs font-mono uppercase tracking-wider text-muted-foreground font-medium">{t("earn.risk")}</th>
+                <th className="p-4 text-xs font-mono uppercase tracking-wider text-muted-foreground font-medium text-right">{t("admin.actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/30">
@@ -57,7 +61,10 @@ export const AdminUsers = () => {
                 <tr 
                   key={user.id} 
                   className="hover:bg-muted/10 transition-colors cursor-pointer"
-                  onClick={() => setSelectedUser(user)}
+                  onClick={() => {
+                    setSelectedUser(user);
+                    setIsEditingBalance(false);
+                  }}
                 >
                   <td className="p-4">
                     <div className="flex items-center gap-3">
@@ -69,6 +76,9 @@ export const AdminUsers = () => {
                           {user.name}
                           {user.badges.includes("VIP") && (
                             <span className="text-[9px] uppercase font-bold tracking-wider bg-warning/20 text-warning px-1.5 py-0.5 rounded">VIP</span>
+                          )}
+                          {user.badges.includes("Admin") && (
+                            <span className="text-[9px] uppercase font-bold tracking-wider bg-primary/20 text-primary px-1.5 py-0.5 rounded">ADMIN</span>
                           )}
                           {user.badges.includes("Suspicious") && (
                             <span className="text-[9px] uppercase font-bold tracking-wider bg-destructive/20 text-destructive px-1.5 py-0.5 rounded">FLAGGED</span>
@@ -87,7 +97,7 @@ export const AdminUsers = () => {
                       {user.status === "Verified" && <CheckCircle2 className="h-3.5 w-3.5" />}
                       {user.status === "Pending KYC" && <AlertCircle className="h-3.5 w-3.5" />}
                       {user.status === "Suspended" && <Ban className="h-3.5 w-3.5" />}
-                      {user.status}
+                      {t(`common.${user.status.toLowerCase().replace(' ', '_')}`, user.status)}
                     </span>
                   </td>
                   <td className="p-4 font-mono font-bold">
@@ -99,7 +109,7 @@ export const AdminUsers = () => {
                         user.riskLevel === "Low" ? "bg-success" :
                         user.riskLevel === "Medium" ? "bg-warning" : "bg-destructive animate-pulse"
                       }`} />
-                      <span className="text-sm font-medium">{user.riskLevel}</span>
+                      <span className="text-sm font-medium">{t(`common.${user.riskLevel.toLowerCase()}`)}</span>
                     </div>
                   </td>
                   <td className="p-4 text-right">
@@ -111,16 +121,16 @@ export const AdminUsers = () => {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="glass-strong border-border/40 w-48">
                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); updateUserStatus(user.id, "Verified"); }} className="cursor-pointer">
-                          <CheckCircle2 className="mr-2 h-4 w-4 text-success" /> Approve KYC
+                          <CheckCircle2 className="mr-2 h-4 w-4 text-success" /> {t("admin.approve_kyc", "Approve KYC")}
                         </DropdownMenuItem>
                         {user.status !== "Suspended" && (
                           <DropdownMenuItem onClick={(e) => { e.stopPropagation(); updateUserStatus(user.id, "Suspended"); }} className="cursor-pointer text-destructive focus:text-destructive">
-                            <Ban className="mr-2 h-4 w-4" /> Suspend Account
+                            <Ban className="mr-2 h-4 w-4" /> {t("admin.suspend_account", "Suspend Account")}
                           </DropdownMenuItem>
                         )}
                         {user.status === "Suspended" && (
                           <DropdownMenuItem onClick={(e) => { e.stopPropagation(); updateUserStatus(user.id, "Verified"); }} className="cursor-pointer text-success focus:text-success">
-                            <CheckCircle2 className="mr-2 h-4 w-4" /> Reactivate Account
+                            <CheckCircle2 className="mr-2 h-4 w-4" /> {t("admin.reactivate_account", "Reactivate Account")}
                           </DropdownMenuItem>
                         )}
                       </DropdownMenuContent>
@@ -132,7 +142,7 @@ export const AdminUsers = () => {
           </table>
           {filteredUsers.length === 0 && (
             <div className="p-12 text-center text-muted-foreground">
-              No users found matching "{search}"
+              {t("common.no_results")} "{search}"
             </div>
           )}
         </div>
@@ -158,43 +168,66 @@ export const AdminUsers = () => {
               
               <div className="flex-1 overflow-y-auto p-6 space-y-8">
                 <section>
-                  <h3 className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-4">Account Details</h3>
+                  <h3 className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-4">{t("admin.account_details", "Account Details")}</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 rounded-2xl bg-muted/20 border border-border/40">
-                      <div className="text-xs text-muted-foreground mb-1">Email</div>
-                      <div className="font-medium text-sm truncate">{selectedUser.email}</div>
+                      <div className="text-xs text-muted-foreground mb-1">{t("nav.email")}</div>
+                      <div className="font-medium text-sm truncate" title={selectedUser.email}>{selectedUser.email}</div>
                     </div>
                     <div className="p-4 rounded-2xl bg-muted/20 border border-border/40">
-                      <div className="text-xs text-muted-foreground mb-1">Total Balance</div>
-                      <div className="font-mono font-bold text-lg text-primary">${selectedUser.balance.toLocaleString()}</div>
+                      <div className="text-xs text-muted-foreground mb-1">{t("dashboard.balance")}</div>
+                      {isEditingBalance ? (
+                        <div className="flex gap-2 items-center mt-1">
+                          <input 
+                            type="number" 
+                            className="bg-background border border-border/50 rounded px-2 py-1 w-full text-sm font-mono focus:outline-none focus:border-primary" 
+                            value={editingBalance} 
+                            onChange={e => setEditingBalance(e.target.value)} 
+                          />
+                          <button onClick={async () => {
+                            await editUserBalance(selectedUser.id, +editingBalance);
+                            setIsEditingBalance(false);
+                            setSelectedUser({...selectedUser, balance: +editingBalance});
+                          }} className="text-xs bg-primary text-primary-foreground px-2 py-1.5 rounded font-bold hover:shadow-glow transition-all">{t("common.save")}</button>
+                          <button onClick={() => setIsEditingBalance(false)} className="text-xs bg-muted hover:bg-muted/80 px-2 py-1.5 rounded transition-all">{t("common.cancel")}</button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between">
+                          <div className="font-mono font-bold text-lg text-primary">${selectedUser.balance.toLocaleString()}</div>
+                          <button onClick={() => {
+                            setEditingBalance(selectedUser.balance.toString());
+                            setIsEditingBalance(true);
+                          }} className="text-[10px] uppercase font-bold text-muted-foreground hover:text-primary transition-colors underline-offset-2 hover:underline">{t("admin.edit", "Edit")}</button>
+                        </div>
+                      )}
                     </div>
                     <div className="p-4 rounded-2xl bg-muted/20 border border-border/40">
-                      <div className="text-xs text-muted-foreground mb-1">Current Plan</div>
+                      <div className="text-xs text-muted-foreground mb-1">{t("plans.current")}</div>
                       <div className="font-medium">{selectedUser.plan} Tier</div>
                     </div>
                     <div className="p-4 rounded-2xl bg-muted/20 border border-border/40">
-                      <div className="text-xs text-muted-foreground mb-1">Join Date</div>
+                      <div className="text-xs text-muted-foreground mb-1">{t("settings.joined_date", "Join Date")}</div>
                       <div className="font-medium text-sm">{new Date(selectedUser.joinedAt).toLocaleDateString()}</div>
                     </div>
                   </div>
                 </section>
 
                 <section>
-                  <h3 className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-4">Risk & Security</h3>
+                  <h3 className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-4">{t("admin.risk_security", "Risk & Security")}</h3>
                   <div className="p-4 rounded-2xl border border-border/40 space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">KYC Status</span>
+                      <span className="text-sm font-medium">{t("settings.kyc_verification")}</span>
                       <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${
                         selectedUser.status === "Verified" ? "bg-success/20 text-success" : 
                         selectedUser.status === "Suspended" ? "bg-destructive/20 text-destructive" : "bg-warning/20 text-warning"
-                      }`}>{selectedUser.status}</span>
+                      }`}>{t(`common.${selectedUser.status.toLowerCase().replace(' ', '_')}`, selectedUser.status)}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Risk Assessment</span>
+                      <span className="text-sm font-medium">{t("admin.risk_assessment", "Risk Assessment")}</span>
                       <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${
                         selectedUser.riskLevel === "Low" ? "bg-success/20 text-success" : 
                         selectedUser.riskLevel === "High" ? "bg-destructive/20 text-destructive" : "bg-warning/20 text-warning"
-                      }`}>{selectedUser.riskLevel}</span>
+                      }`}>{t(`common.${selectedUser.riskLevel.toLowerCase()}`)}</span>
                     </div>
                   </div>
                 </section>
@@ -203,16 +236,16 @@ export const AdminUsers = () => {
               <div className="p-6 border-t border-border/40 bg-muted/10 flex flex-col gap-3">
                 {selectedUser.status === "Pending KYC" && (
                   <Button onClick={() => updateUserStatus(selectedUser.id, "Verified")} className="w-full bg-success hover:bg-success/90 text-success-foreground font-bold">
-                    Approve KYC Documents
+                    {t("admin.approve_kyc_docs", "Approve KYC Documents")}
                   </Button>
                 )}
                 {selectedUser.status !== "Suspended" ? (
                   <Button variant="destructive" onClick={() => updateUserStatus(selectedUser.id, "Suspended")} className="w-full font-bold">
-                    <ShieldAlert className="mr-2 h-4 w-4" /> Suspend Account
+                    <ShieldAlert className="mr-2 h-4 w-4" /> {t("admin.suspend_account")}
                   </Button>
                 ) : (
                   <Button variant="outline" onClick={() => updateUserStatus(selectedUser.id, "Verified")} className="w-full border-success text-success hover:bg-success/10 font-bold">
-                    Reactivate Account
+                    {t("admin.reactivate_account")}
                   </Button>
                 )}
               </div>
